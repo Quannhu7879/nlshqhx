@@ -250,7 +250,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
           <span>© 2026 EduNLS AI — Tích Hợp Năng Lực Số & AI Vào Kế Hoạch Bài Dạy.</span>
           <span className="font-semibold text-slate-600">
-            Supabase DB: ggegueyqsnovnanfwuto.supabase.co • Deploy Vercel Ready
+            Bản quyền thuộc về thầy giáo Nghiêm Hồng Quân - sđt: 0984839799/zalo 0984839799
           </span>
         </div>
       </footer>
