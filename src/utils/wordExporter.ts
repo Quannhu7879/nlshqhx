@@ -84,8 +84,31 @@ function formatHtmlForWord(htmlInput: string): string {
       });
     });
 
-    // 3. Format images, blocks, and containers to fit within 100% width
-    const allElements = Array.from(doc.querySelectorAll('div, p, img, pre, code, blockquote, section, iframe, a, span'));
+    // 3. Format NLS injection blocks specifically for Word
+    const nlsElements = Array.from(doc.querySelectorAll('.nls-injection, .nls-box, .nls-wrapper, [class*="bg-"]'));
+    nlsElements.forEach(el => {
+      if (el.classList.contains('nls-injection') || el.classList.contains('nls-box') || el.classList.contains('nls-wrapper') || (el.textContent || '').includes('TÍCH HỢP')) {
+        el.setAttribute('style', `
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+          word-wrap: break-word !important;
+          word-break: break-word !important;
+          overflow-wrap: break-word !important;
+          border: 1px solid #2563eb !important;
+          background-color: #f0f7ff !important;
+          padding: 5pt 6pt !important;
+          margin-top: 4pt !important;
+          margin-bottom: 6pt !important;
+          font-size: 11pt !important;
+          line-height: 1.35 !important;
+          page-break-inside: avoid !important;
+        `.replace(/\s+/g, ' ').trim());
+      }
+    });
+
+    // 4. Format images, blocks, and containers to fit strictly within 100% cell width
+    const allElements = Array.from(doc.querySelectorAll('div, p, img, pre, code, blockquote, section, iframe, a, span, ul, li'));
     allElements.forEach(el => {
       const tag = el.tagName.toLowerCase();
       if (tag === 'img') {
@@ -192,6 +215,14 @@ export function exportWordDocument(
           word-break: break-word !important;
           overflow-wrap: break-word !important;
           box-sizing: border-box !important;
+        }
+        table tr td:first-child, table tr td:nth-child(1) {
+          width: 50% !important;
+          max-width: 50% !important;
+        }
+        table tr td:nth-child(2) {
+          width: 50% !important;
+          max-width: 50% !important;
         }
         th {
           background-color: #f3f4f6 !important;

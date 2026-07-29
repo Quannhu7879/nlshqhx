@@ -525,7 +525,7 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
               </div>
               <div className="p-5 overflow-y-auto custom-scrollbar flex-grow space-y-3 text-slate-800 text-xs leading-relaxed bg-slate-50/50">
                 {integratedHtml ? (
-                  <div dangerouslySetInnerHTML={{ __html: integratedHtml }} />
+                  <div className="docx-content w-full" dangerouslySetInnerHTML={{ __html: integratedHtml }} />
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center py-12">
                     <Wand2 className="w-10 h-10 mb-3 text-slate-300" />
@@ -549,7 +549,7 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
                 </span>
               </div>
               <div
-                className="p-5 overflow-y-auto custom-scrollbar flex-grow space-y-3 text-slate-800 text-xs leading-relaxed"
+                className="p-5 overflow-y-auto custom-scrollbar flex-grow space-y-3 text-slate-800 text-xs leading-relaxed docx-content w-full"
                 dangerouslySetInnerHTML={{ __html: originalHtml }}
               />
             </div>
