@@ -1,0 +1,6 @@
+{
+  "name": "EduNLS AI",
+  "description": "Hệ thống AI Tích hợp Năng lực số & AI vào Kế hoạch bài dạy chuẩn TT 02/2025/TT-BGDĐT, QĐ 3439/QĐ-BGDĐT và CV 5512",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
