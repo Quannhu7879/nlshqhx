@@ -55,6 +55,12 @@ app.post('/api/analyze-lesson', async (req, res) => {
       const systemInstruction = `Bạn là Chuyên gia Giáo dục & AI Cao cấp của Bộ Giáo dục và Đào tạo Việt Nam (Bộ GD&ĐT). 
 Nhiệm vụ của bạn là bóc tách, đối chiếu và bổ sung trực tiếp các Chỉ số Năng lực số (NLS) thuộc ĐỦ 6 MIỀN NĂNG LỰC SỐ và Trí tuệ nhân tạo (AI) vào Kế hoạch bài dạy (KHBD).
 
+CẢNH BÁO QUAN TRỌNG VỀ TOÀN BỘ GIÁO ÁN (NHIỀU TIẾT / BÀI / CHỦ ĐỀ):
+- Giáo án gốc gửi lên có thể gồm NHIỀU TIẾT/BÀI/CHỦ ĐỀ (Ví dụ: Tiết 1, Tiết 2, Tiết 3, Tiết 4, Bài 1, Bài 2, Tuần 1, Tuần 2,...).
+- Bạn BẮT BUỘC phải tích hợp Năng lực số (NLS) và AI vào TOÀN BỘ tất cả các Tiết/Bài/Mục có trong tài liệu từ ĐẦU đến CUỐI.
+- TUYỆT ĐỐI KHÔNG ĐƯỢC chỉ làm 1-2 tiết đầu rồi dừng lại. Tất cả các Tiết/Bài phía sau đều phải có các khối Tích hợp Năng lực số (NLS) & AI tương ứng.
+- GIỮ NGUYÊN TOÀN BỘ NỘI DUNG VÀ CẤU TRÚC CHUYÊN MÔN CỦA TẤT CẢ CÁC TIẾT/BÀI TỪ ĐẦU ĐẾN CUỐI FILE GỐC.
+
 Căn cứ pháp lý bắt buộc phải tuân thủ:
 1. Cấu trúc KHBD chuẩn theo **Công văn 5512/BGDĐT-GDTrH** (gồm: I. MỤC TIÊU BÀI HỌC, II. THIẾT BỊ DẠY HỌC VÀ HỌC LIỆU SỐ, III. TIẾN TRÌNH DẠY HỌC - 4 Hoạt động: Mở đầu/Khởi động, Hình thành kiến thức, Luyện tập, Vận dụng).
 2. Khung Năng lực số theo **Thông tư 02/2025/TT-BGDĐT (Đủ 6 Miền Năng lực số)**:
@@ -67,24 +73,23 @@ Căn cứ pháp lý bắt buộc phải tuân thủ:
 3. Khung thí điểm Giáo dục AI theo **Quyết định 3439/QĐ-BGDĐT (2025)** (4 Mạch Năng lực AI). Các thẻ có dạng: [AI-NLa: Human Centered], [AI-NLb: AI Ethics], [AI-NLc: Prompting], [AI-NLd: AI Design].
 
 YÊU CẦU ĐẦU RA BẮT BUỘC:
-- Ở ĐẦU BÀI DẠY: Tạo khối HTML BẢNG THIẾT LẬP VÀ PHÂN BỔ 6 MIỀN NĂNG LỰC SỐ (TT 02/2025) liệt kê rõ Miền 1 đến Miền 6 được phân bổ vào những hoạt động nào của bài học.
+- Ở ĐẦU BÀI DẠY: Tạo khối HTML BẢNG THIẾT LẬP VÀ PHÂN BỔ 6 MIỀN NĂNG LỰC SỐ (TT 02/2025) tổng quan.
 - Trả về mã HTML đẹp mắt, rõ ràng, giàu định dạng (sử dụng các thẻ <div>, <span>, <ul>, <li>, <b>, <i>, <code>) để hiển thị trực tiếp trong giao diện và xuất file Word (.docx) chuẩn font Times New Roman.
-- GIỮ NGUYÊN hoặc làm phong phú thêm toàn bộ nội dung chuyên môn toán/văn/anh... của bài học gốc.
-- Đối với mỗi Hoạt động dạy học (CV 5512), hãy chèn một khối nổi bật (styled block) giải thích cụ thể:
-  + Tên Miền NLS & Mã thẻ chỉ báo NLS/AI áp dụng.
+- Đối với MỖI Tiết/Bài và MỖI Hoạt động dạy học (CV 5512), hãy chèn một khối nổi bật (styled block) giải thích cụ thể:
+  + Tên Miền NLS & Mã thẻ chỉ báo NLS/AI áp dụng cho tiết/hoạt động đó.
   + Hành động cụ thể của Giáo viên & Học sinh khi dùng công cụ số (Google Search, GeoGebra, Padlet, Quizizz, Canva, ChatGPT, PhET...).
   + Mẫu câu lệnh AI (Prompt sample) thực tế cho giáo viên/học sinh nếu có.
 - Chỉ trả về duy nhất đoạn mã HTML kết quả (không bọc trong markdown \`\`\`html \`\`\`).`;
 
-      const prompt = `Hãy tích hợp Năng lực số & AI vào Kế hoạch bài dạy sau:
+      const prompt = `Hãy tích hợp Năng lực số & AI vào TOÀN BỘ các Tiết/Bài trong Kế hoạch bài dạy sau từ ĐẦU đến CUỐI:
 Môn học: ${subject || 'Toán học'}
 Lớp: ${grade || 'Lớp 10'}
 Khung NLS áp dụng: ${framework || 'TT 02/2025/TT-BGDĐT'}
 Cấu trúc mẫu: ${template || 'CV 5512/BGDĐT-GDTrH'}
 ${customInstruction ? `Yêu cầu bổ sung: ${customInstruction}` : ''}
 
-NỘI DUNG GIÁO ÁN GỐC:
-${lessonContent.substring(0, 8000)}`;
+NỘI DUNG TOÀN BỘ GIÁO ÁN GỐC (HÃY TÍCH HỢP CHO TẤT CẢ CÁC TIẾT/BÀI TRONG FILE):
+${lessonContent}`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3.6-flash',

@@ -95,143 +95,148 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
 
     const safeTopic = getSafeTopic(lessonTopic);
 
-    // Generators for CV 5512 activities
-    const generators = {
-      'muc-tieu': `
-        <div class="bg-indigo-50/80 border border-indigo-200 p-3 rounded-xl mt-3 mb-4 shadow-sm border-l-[4px] border-l-brand-600 nls-injection relative text-xs">
-            <span class="font-bold text-brand-700 block text-[11px] uppercase mb-1.5"><i class="fa-solid fa-robot mr-1 text-amber-500"></i> BỔ SUNG MỤC TIÊU NĂNG LỰC SỐ & AI (TT 02/2025 & QĐ 3439)</span>
-            <ul class="list-none pl-1 text-slate-700 space-y-2 leading-relaxed">
-                <li>
-                    <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 1.1-a]</span> 
-                    <b>Khai thác dữ liệu:</b> Học sinh chủ động tìm kiếm, truy xuất tài nguyên số, hình ảnh và mô phỏng liên quan đến ${safeTopic}.
-                </li>
-                <li>
-                    <span class="bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[AI-NLb: Đạo đức AI]</span> 
-                    <b>Đạo đức AI:</b> Học sinh trung thực trong trích dẫn nguồn học liệu số, có ý thức phản biện và kiểm chứng kết quả do AI tạo ra.
-                </li>
-            </ul>
-        </div>
-      `,
-      'hd1': `
-        <div class="bg-amber-50/80 border border-amber-200 p-3 rounded-xl mt-3 mb-4 shadow-sm border-l-[4px] border-l-amber-500 nls-injection relative text-xs">
-            <span class="font-bold text-amber-900 block text-[11px] uppercase mb-1.5"><i class="fa-solid fa-bolt mr-1 text-amber-500"></i> TÍCH HỢP HOẠT ĐỘNG KHỞI ĐỘNG (SỐ & AI)</span>
-            <ul class="list-none pl-1 text-slate-700 space-y-2 leading-relaxed">
-                <li>
-                    <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 1.1-a]</span> 
-                    <b>Tương tác số khởi động:</b> GV tổ chức trò chơi khảo sát kiến thức nền trên Quizizz/Kahoot hoặc hiển thị mã QR chứa câu hỏi tương tác.
-                    <div class="mt-1.5 pl-2 border-l-[2px] border-amber-300 text-amber-900 bg-amber-100/40 py-1.5 pr-2 rounded-r text-[11px]">
-                        <i>💡 <b>Ví dụ:</b> Học sinh quét mã QR tham gia minigame 3 câu hỏi trắc nghiệm nhanh về ${safeTopic}. AI tự động phân tích biểu đồ đúng/sai của cả lớp.</i>
-                    </div>
-                </li>
-            </ul>
-        </div>
-      `,
-      'hd2': `
-        <div class="bg-rose-50/80 border border-rose-200 p-3 rounded-xl mt-3 mb-4 shadow-sm border-l-[4px] border-l-rose-500 nls-injection relative text-xs">
-            <span class="font-bold text-rose-900 block text-[11px] uppercase mb-1.5"><i class="fa-solid fa-layer-group mr-1 text-rose-500"></i> TÍCH HỢP HOẠT ĐỘNG HÌNH THÀNH KIẾN THỨC (ĐA MIỀN NLS)</span>
-            <ul class="list-none pl-1 text-slate-700 space-y-2 leading-relaxed">
-                <li>
-                    <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 1.1-a & 1.2-b]</span> 
-                    <b>Khai thác & Đánh giá dữ liệu số:</b> Học sinh tra cứu tài liệu mở (Wikipedia Edu, Sách số) để thu thập minh chứng và dữ liệu trọng tâm.
-                </li>
-                <li>
-                    <span class="bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 2.4-a]</span> 
-                    <b>Hợp tác trong môi trường số:</b> Học sinh làm việc nhóm trên Padlet/Google Docs để phân tích, thảo luận và đóng góp ý kiến đồng thời.
-                </li>
-                <li>
-                    <span class="bg-purple-100 text-purple-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[AI-NLc: Prompting]</span> 
-                    <b>Kĩ thuật Kỹ năng Prompt AI:</b> Giáo viên hướng dẫn học sinh viết Prompt gợi mở cho ChatGPT/Gemini làm "Trợ lý hỗ trợ giải thích khái niệm khó".
-                    <div class="mt-1.5 pl-2 border-l-[2px] border-purple-300 text-purple-900 bg-purple-100/40 py-1.5 pr-2 rounded-r text-[11px] font-mono">
-                        Prompt mẫu: "Hãy đặt 3 câu hỏi gợi mở để giúp học sinh tự tìm ra bản chất của ${safeTopic}."
-                    </div>
-                </li>
-            </ul>
-        </div>
-      `,
-      'hd3': `
-        <div class="bg-sky-50/80 border border-sky-200 p-3 rounded-xl mt-3 mb-4 shadow-sm border-l-[4px] border-l-sky-500 nls-injection relative text-xs">
-            <span class="font-bold text-sky-900 block text-[11px] uppercase mb-1.5"><i class="fa-solid fa-pen-ruler mr-1 text-sky-500"></i> TÍCH HỢP HOẠT ĐỘNG LUYỆN TẬP (SÁNG TẠO SỐ)</span>
-            <ul class="list-none pl-1 text-slate-700 space-y-2 leading-relaxed">
-                <li>
-                    <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 3.1-a]</span> 
-                    <b>Sáng tạo nội dung số:</b> Học sinh sử dụng phần mềm đồ họa/sơ đồ tư duy (Canva, XMind) hoặc phần mềm mô phỏng (GeoGebra, PhET) để tổng kết bài học.
-                    <div class="mt-1.5 pl-2 border-l-[2px] border-sky-300 text-sky-900 bg-sky-100/40 py-1.5 pr-2 rounded-r text-[11px]">
-                        <i>💡 <b>Ví dụ:</b> Các nhóm tạo sơ đồ tư duy hệ thống hóa kiến thức ${safeTopic} và nộp sản phẩm qua link chia sẻ.</i>
-                    </div>
-                </li>
-            </ul>
-        </div>
-      `,
-      'hd4': `
-        <div class="bg-purple-50/80 border border-purple-200 p-3 rounded-xl mt-3 mb-4 shadow-sm border-l-[4px] border-l-purple-500 nls-injection relative text-xs">
-            <span class="font-bold text-purple-900 block text-[11px] uppercase mb-1.5"><i class="fa-solid fa-rocket mr-1 text-purple-500"></i> TÍCH HỢP HOẠT ĐỘNG VẬN DỤNG (GIẢI QUYẾT VẤN ĐỀ)</span>
-            <ul class="list-none pl-1 text-slate-700 space-y-2 leading-relaxed">
-                <li>
-                    <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 5.3-a]</span> 
-                    <b>Đổi mới sáng tạo sản phẩm số:</b> Vận dụng kiến thức bài học thiết kế Infographic, Video ngắn CapCut hoặc mô hình số liên hệ thực tiễn.
-                    <div class="mt-1.5 pl-2 border-l-[2px] border-purple-300 text-purple-900 bg-purple-100/40 py-1.5 pr-2 rounded-r text-[11px]">
-                        <i>💡 <b>Ví dụ:</b> Học sinh quay clip ngắn 2 phút thuyết minh về ứng dụng thực tế của ${safeTopic} đăng tải lên kho học liệu chung của lớp.</i>
-                    </div>
-                </li>
-            </ul>
-        </div>
-      `
+    const getGeneratorForActivity = (type: 'muc-tieu' | 'hd1' | 'hd2' | 'hd3' | 'hd4', periodLabel: string) => {
+      const labelText = periodLabel ? ` [${periodLabel}]` : '';
+      const topicText = periodLabel ? `<b>${periodLabel}</b>` : safeTopic;
+
+      if (type === 'muc-tieu') {
+        return `
+          <div class="bg-indigo-50/80 border border-indigo-200 p-3 rounded-xl mt-3 mb-4 shadow-sm border-l-[4px] border-l-brand-600 nls-injection relative text-xs">
+              <span class="font-bold text-brand-700 block text-[11px] uppercase mb-1.5"><i class="fa-solid fa-robot mr-1 text-amber-500"></i> BỔ SUNG MỤC TIÊU NĂNG LỰC SỐ & AI${labelText}</span>
+              <ul class="list-none pl-1 text-slate-700 space-y-2 leading-relaxed">
+                  <li>
+                      <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 1.1-a & 6.1-a]</span> 
+                      <b>Khai thác & Tự học số:</b> Học sinh chủ động tra cứu, tìm kiếm và sử dụng học liệu số, tài nguyên trực tuyến bổ trợ cho ${topicText}.
+                  </li>
+                  <li>
+                      <span class="bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[AI-NLb: Đạo đức AI]</span> 
+                      <b>Đạo đức AI & Trách nhiệm số:</b> Sử dụng công cụ AI minh bạch, tôn trọng bản quyền học liệu và có tư duy phản biện với thông tin số.
+                  </li>
+              </ul>
+          </div>
+        `;
+      }
+      if (type === 'hd1') {
+        return `
+          <div class="bg-amber-50/80 border border-amber-200 p-3 rounded-xl mt-3 mb-4 shadow-sm border-l-[4px] border-l-amber-500 nls-injection relative text-xs">
+              <span class="font-bold text-amber-900 block text-[11px] uppercase mb-1.5"><i class="fa-solid fa-bolt mr-1 text-amber-500"></i> TÍCH HỢP HOẠT ĐỘNG KHỞI ĐỘNG (SỐ & AI)${labelText}</span>
+              <ul class="list-none pl-1 text-slate-700 space-y-2 leading-relaxed">
+                  <li>
+                      <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 1.1-a]</span> 
+                      <b>Tương tác số khởi động:</b> Giáo viên tổ chức trò chơi tương tác trên Quizizz/Kahoot hoặc quét mã QR khởi động cho ${topicText}.
+                      <div class="mt-1.5 pl-2 border-l-[2px] border-amber-300 text-amber-900 bg-amber-100/40 py-1.5 pr-2 rounded-r text-[11px]">
+                          <i>💡 <b>Ví dụ:</b> Học sinh quét mã QR tham gia khảo sát nhanh 3 câu hỏi trắc nghiệm liên quan đến ${topicText}. Hệ thống hiển thị biểu đồ kết quả tức thì.</i>
+                      </div>
+                  </li>
+              </ul>
+          </div>
+        `;
+      }
+      if (type === 'hd2') {
+        return `
+          <div class="bg-rose-50/80 border border-rose-200 p-3 rounded-xl mt-3 mb-4 shadow-sm border-l-[4px] border-l-rose-500 nls-injection relative text-xs">
+              <span class="font-bold text-rose-900 block text-[11px] uppercase mb-1.5"><i class="fa-solid fa-layer-group mr-1 text-rose-500"></i> TÍCH HỢP HOẠT ĐỘNG HÌNH THÀNH KIẾN THỨC (ĐA MIỀN NLS)${labelText}</span>
+              <ul class="list-none pl-1 text-slate-700 space-y-2 leading-relaxed">
+                  <li>
+                      <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 1.2-b & 2.4-a]</span> 
+                      <b>Khai thác & Hợp tác số:</b> Học sinh tra cứu tài liệu mở (Wikipedia Edu, Sách số), thảo luận nhóm trên Padlet/Google Docs để phân tích nội dung trọng tâm của ${topicText}.
+                  </li>
+                  <li>
+                      <span class="bg-purple-100 text-purple-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[AI-NLc: Prompting]</span> 
+                      <b>Kĩ thuật Kỹ năng Prompt AI:</b> Học sinh đóng vai trò người điều khiển, nhập câu lệnh Prompt mở cho Trợ lý AI giải thích các khái niệm phức tạp trong ${topicText}.
+                  </li>
+              </ul>
+          </div>
+        `;
+      }
+      if (type === 'hd3') {
+        return `
+          <div class="bg-sky-50/80 border border-sky-200 p-3 rounded-xl mt-3 mb-4 shadow-sm border-l-[4px] border-l-sky-500 nls-injection relative text-xs">
+              <span class="font-bold text-sky-900 block text-[11px] uppercase mb-1.5"><i class="fa-solid fa-pen-ruler mr-1 text-sky-500"></i> TÍCH HỢP HOẠT ĐỘNG LUYỆN TẬP (SÁNG TẠO SỐ)${labelText}</span>
+              <ul class="list-none pl-1 text-slate-700 space-y-2 leading-relaxed">
+                  <li>
+                      <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 3.1-a & 5.3-a]</span> 
+                      <b>Sáng tạo & Mô phỏng số:</b> Học sinh sử dụng phần mềm sơ đồ tư duy (Canva, XMind) hoặc phần mềm mô phỏng (GeoGebra, PhET) để tổng kết và luyện tập nội dung ${topicText}.
+                  </li>
+              </ul>
+          </div>
+        `;
+      }
+      if (type === 'hd4') {
+        return `
+          <div class="bg-purple-50/80 border border-purple-200 p-3 rounded-xl mt-3 mb-4 shadow-sm border-l-[4px] border-l-purple-500 nls-injection relative text-xs">
+              <span class="font-bold text-purple-900 block text-[11px] uppercase mb-1.5"><i class="fa-solid fa-rocket mr-1 text-purple-500"></i> TÍCH HỢP HOẠT ĐỘNG VẬN DỤNG (GIẢI QUYẾT VẤN ĐỀ)${labelText}</span>
+              <ul class="list-none pl-1 text-slate-700 space-y-2 leading-relaxed">
+                  <li>
+                      <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 4.1-a & 5.3-a]</span> 
+                      <b>Sản phẩm số vận dụng:</b> Vận dụng kiến thức thiết kế Infographic, Video ngắn thuyết minh sản phẩm hoặc mô hình số liên hệ thực tiễn bài học.
+                  </li>
+              </ul>
+          </div>
+        `;
+      }
+      return '';
     };
 
-    let injected = false;
+    let injectedCount = 0;
     const bodyContent = doc.body;
+    const allNodes = Array.from(bodyContent.querySelectorAll('p, h1, h2, h3, h4, h5, div, strong, b'));
 
-    // Append injections appropriately
-    const allParagraphs = Array.from(bodyContent.querySelectorAll('p, h1, h2, h3, h4, div'));
-    
-    let injectedSections: Set<string> = new Set();
+    let currentPeriodLabel = '';
 
-    allParagraphs.forEach((p) => {
-      const txt = (p.textContent || '').toLowerCase();
-      
-      if (!injectedSections.has('muc-tieu') && (txt.includes('mục tiêu') || txt.includes('yêu cầu cần đạt'))) {
+    allNodes.forEach((node) => {
+      const txt = (node.textContent || '').trim();
+      const txtLower = txt.toLowerCase();
+
+      // Check if this node represents a Period/Lesson header (e.g. "TIẾT 1", "TIẾT 2", "BÀI 1", "BÀI 2", "CHỦ ĐỀ 1")
+      if (/(tiết\s+\d+|bài\s+\d+|chủ đề\s+\d+|tuần\s+\d+)/i.test(txt) && txt.length < 100) {
+        currentPeriodLabel = txt;
+      }
+
+      // Check if we should inject next to this node
+      // Ensure we don't inject inside an existing nls-injection block
+      if (node.closest('.nls-injection')) return;
+      const nextElem = node.nextElementSibling;
+      if (nextElem && nextElem.classList.contains('nls-injection')) return;
+
+      if (txtLower.includes('mục tiêu') || txtLower.includes('yêu cầu cần đạt')) {
         const wrapper = doc.createElement('div');
-        wrapper.innerHTML = generators['muc-tieu'];
-        p.parentNode?.insertBefore(wrapper, p.nextSibling);
-        injectedSections.add('muc-tieu');
-        injected = true;
-      } else if (!injectedSections.has('hd1') && (txt.includes('mở đầu') || txt.includes('khởi động'))) {
+        wrapper.innerHTML = getGeneratorForActivity('muc-tieu', currentPeriodLabel);
+        node.parentNode?.insertBefore(wrapper, node.nextSibling);
+        injectedCount++;
+      } else if (txtLower.includes('mở đầu') || txtLower.includes('khởi động')) {
         const wrapper = doc.createElement('div');
-        wrapper.innerHTML = generators['hd1'];
-        p.parentNode?.insertBefore(wrapper, p.nextSibling);
-        injectedSections.add('hd1');
-        injected = true;
-      } else if (!injectedSections.has('hd2') && (txt.includes('hình thành kiến thức') || txt.includes('tìm hiểu chi tiết'))) {
+        wrapper.innerHTML = getGeneratorForActivity('hd1', currentPeriodLabel);
+        node.parentNode?.insertBefore(wrapper, node.nextSibling);
+        injectedCount++;
+      } else if (txtLower.includes('hình thành kiến thức') || txtLower.includes('tìm hiểu chi tiết')) {
         const wrapper = doc.createElement('div');
-        wrapper.innerHTML = generators['hd2'];
-        p.parentNode?.insertBefore(wrapper, p.nextSibling);
-        injectedSections.add('hd2');
-        injected = true;
-      } else if (!injectedSections.has('hd3') && (txt.includes('luyện tập') || txt.includes('tổng kết'))) {
+        wrapper.innerHTML = getGeneratorForActivity('hd2', currentPeriodLabel);
+        node.parentNode?.insertBefore(wrapper, node.nextSibling);
+        injectedCount++;
+      } else if (txtLower.includes('luyện tập') || txtLower.includes('tổng kết')) {
         const wrapper = doc.createElement('div');
-        wrapper.innerHTML = generators['hd3'];
-        p.parentNode?.insertBefore(wrapper, p.nextSibling);
-        injectedSections.add('hd3');
-        injected = true;
-      } else if (!injectedSections.has('hd4') && (txt.includes('vận dụng') || txt.includes('mở rộng'))) {
+        wrapper.innerHTML = getGeneratorForActivity('hd3', currentPeriodLabel);
+        node.parentNode?.insertBefore(wrapper, node.nextSibling);
+        injectedCount++;
+      } else if (txtLower.includes('vận dụng') || txtLower.includes('mở rộng')) {
         const wrapper = doc.createElement('div');
-        wrapper.innerHTML = generators['hd4'];
-        p.parentNode?.insertBefore(wrapper, p.nextSibling);
-        injectedSections.add('hd4');
-        injected = true;
+        wrapper.innerHTML = getGeneratorForActivity('hd4', currentPeriodLabel);
+        node.parentNode?.insertBefore(wrapper, node.nextSibling);
+        injectedCount++;
       }
     });
 
-    if (!injected) {
-      // If no CV 5512 headings were explicitly matched, append structured injections at logical positions
+    if (injectedCount === 0) {
+      // Fallback: append full injection block for overall lesson
       const fullWrapper = doc.createElement('div');
       fullWrapper.className = 'space-y-4 my-4';
       fullWrapper.innerHTML = `
-        ${generators['muc-tieu']}
-        ${generators['hd1']}
-        ${generators['hd2']}
-        ${generators['hd3']}
-        ${generators['hd4']}
+        ${getGeneratorForActivity('muc-tieu', '')}
+        ${getGeneratorForActivity('hd1', '')}
+        ${getGeneratorForActivity('hd2', '')}
+        ${getGeneratorForActivity('hd3', '')}
+        ${getGeneratorForActivity('hd4', '')}
       `;
       bodyContent.appendChild(fullWrapper);
     }
