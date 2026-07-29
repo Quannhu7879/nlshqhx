@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import mammoth from 'mammoth';
 import { LessonPlan, User } from '../types';
 import { sampleLessons } from '../data/sampleLessons';
-import { parseAndInjectDigitalCompetencies, ensureInjectionsInLeftColumn } from '../utils/aiParser';
+import { parseAndInjectDigitalCompetencies, ensureInjectionsInLeftColumn, injectDigitalToolLink } from '../utils/aiParser';
 import { exportWordDocument } from '../utils/wordExporter';
 import {
   Wand2,
@@ -17,7 +17,14 @@ import {
   Sparkles,
   RotateCw,
   FileText,
-  AlertCircle
+  AlertCircle,
+  Link2,
+  Folder,
+  FileSpreadsheet,
+  ClipboardList,
+  X,
+  Globe,
+  ExternalLink
 } from 'lucide-react';
 
 interface StudioViewProps {
@@ -40,6 +47,83 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  // Digital Tool Link Attachment Modal State
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkToolType, setLinkToolType] = useState<'padlet' | 'drive' | 'sheets' | 'forms' | 'other'>('padlet');
+  const [linkTitle, setLinkTitle] = useState('Bảng thảo luận Padlet - Nhóm 1-4');
+  const [linkUrl, setLinkUrl] = useState('https://padlet.com');
+  const [linkDescription, setLinkDescription] = useState('Học sinh truy cập liên kết để đăng sản phẩm thảo luận nhóm.');
+  const [linkTargetActivity, setLinkTargetActivity] = useState('hd1');
+
+  const applyPreset = (type: 'padlet' | 'drive' | 'sheets' | 'forms') => {
+    setLinkToolType(type);
+    if (type === 'padlet') {
+      setLinkTitle('Bảng thảo luận Padlet - Nhóm 1-4');
+      setLinkUrl('https://padlet.com/sample-board');
+      setLinkDescription('Học sinh nộp sơ đồ tư duy sản phẩm nhóm và thả tim nhận xét bài làm của các nhóm bạn.');
+      setLinkTargetActivity('hd3');
+    } else if (type === 'drive') {
+      setLinkTitle('Kho học liệu & Video bài giảng Google Drive');
+      setLinkUrl('https://drive.google.com/drive/folders/sample');
+      setLinkDescription('Thư mục chứa video mô phỏng, phiếu bài tập và tư liệu tham khảo mở rộng.');
+      setLinkTargetActivity('hd2');
+    } else if (type === 'sheets') {
+      setLinkTitle('Bảng theo dõi & Thống kê kết quả Google Trang tính');
+      setLinkUrl('https://docs.google.com/spreadsheets/d/sample');
+      setLinkDescription('Học sinh điền số liệu thực nghiệm và quan sát bảng tổng hợp tự động.');
+      setLinkTargetActivity('hd3');
+    } else if (type === 'forms') {
+      setLinkTitle('Phiếu khảo sát & Trắc nghiệm Google Forms');
+      setLinkUrl('https://docs.google.com/forms/d/sample');
+      setLinkDescription('Bài kiểm tra đánh giá nhanh 10 câu trắc nghiệm khách quan đầu/cuối giờ.');
+      setLinkTargetActivity('hd1');
+    }
+  };
+
+  const handleInsertLink = () => {
+    if (!originalHtml && !integratedHtml) {
+      onShowToast('Vui lòng tải lên giáo án hoặc nạp bài dạy mẫu trước khi gán link!');
+      return;
+    }
+
+    let baseHtml = integratedHtml;
+    if (!baseHtml) {
+      baseHtml = parseAndInjectDigitalCompetencies(originalHtml, subject, grade);
+    }
+
+    const updatedHtml = injectDigitalToolLink(
+      baseHtml,
+      linkToolType,
+      linkTitle,
+      linkUrl,
+      linkDescription,
+      linkTargetActivity
+    );
+
+    setIntegratedHtml(updatedHtml);
+
+    // Auto-save to repository
+    const newPlan: LessonPlan = {
+      id: activePlan?.id || 'plan_' + Date.now(),
+      title: lessonTitle,
+      subject,
+      grade,
+      framework,
+      template,
+      status: 'Đã tích hợp NLS',
+      originalHtml,
+      integratedHtml: updatedHtml,
+      createdAt: Date.now(),
+      dateString: new Date().toLocaleDateString('vi-VN'),
+      userId: currentUser?.uid,
+      authorEmail: currentUser?.email,
+    };
+    onSaveLesson(newPlan);
+
+    setShowLinkModal(false);
+    onShowToast(`Đã gán link ${linkToolType.toUpperCase()} vào Cột 1 (Hoạt động GV & HS)!`);
+  };
 
   // Load activePlan if passed from Repository ("Xem lại")
   useEffect(() => {
@@ -266,6 +350,14 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
             </div>
           </div>
 
+          <button
+            onClick={() => setShowLinkModal(true)}
+            className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200 transition flex items-center shadow-xs"
+          >
+            <Link2 className="w-4 h-4 mr-1.5 text-indigo-600" />
+            Gán Link Công Cụ Số
+          </button>
+
           {integratedHtml && (
             <button
               onClick={handleExport}
@@ -397,14 +489,24 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
               <Columns className="w-4 h-4 mr-2 text-indigo-600" />
               Màn hình so sánh trực quan (Đã tích hợp NLS & AI vs Giáo án gốc)
             </div>
-            <button
-              onClick={handleRunAI}
-              disabled={isProcessing}
-              className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-xs rounded-lg shadow-md hover:shadow-lg transition flex items-center disabled:opacity-50"
-            >
-              <Sparkles className="w-4 h-4 mr-2 text-amber-300" />
-              Phân Tích & Tích Hợp NLS Bằng AI
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowLinkModal(true)}
+                className="px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-lg transition border border-indigo-200 flex items-center shadow-xs"
+              >
+                <Link2 className="w-4 h-4 mr-1.5 text-indigo-600" />
+                Gán Link Padlet / Google
+              </button>
+
+              <button
+                onClick={handleRunAI}
+                disabled={isProcessing}
+                className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-xs rounded-lg shadow-md hover:shadow-lg transition flex items-center disabled:opacity-50"
+              >
+                <Sparkles className="w-4 h-4 mr-2 text-amber-300" />
+                Phân Tích & Tích Hợp NLS Bằng AI
+              </button>
+            </div>
           </div>
 
           {/* Two-Column Editor */}
@@ -429,7 +531,7 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
                     <Wand2 className="w-10 h-10 mb-3 text-slate-300" />
                     <p className="font-medium text-slate-600 text-sm">Chưa kích hoạt phân tích AI</p>
                     <p className="text-xs max-w-xs text-slate-400 mt-1">
-                      Bấm nút "Phân Tích & Tích Hợp NLS Bằng AI" bên trên để tiến hành đối chiếu và chèn chỉ số số.
+                      Bấm nút "Phân Tích & Tích Hợp NLS Bằng AI" hoặc "Gán Link Padlet / Google" để chèn nội dung vào giáo án.
                     </p>
                   </div>
                 )}
@@ -450,6 +552,184 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
                 className="p-5 overflow-y-auto custom-scrollbar flex-grow space-y-3 text-slate-800 text-xs leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: originalHtml }}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Digital Tool Link Attachment Modal */}
+      {showLinkModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-indigo-900 to-slate-900 px-6 py-4 text-white flex justify-between items-center">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/30 flex items-center justify-center border border-indigo-400/30">
+                  <Link2 className="w-5 h-5 text-indigo-300" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">Gán Link Công Cụ Số & Học Liệu</h3>
+                  <p className="text-[11px] text-indigo-200">
+                    Chèn link Padlet, Google Drive, Trang tính, Forms vào Cột 1 (Hoạt động GV & HS)
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowLinkModal(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Presets Selection */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-2">
+                  1. Chọn Nhanh Mẫu Công Cụ Phổ Biến
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => applyPreset('padlet')}
+                    className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between ${
+                      linkToolType === 'padlet'
+                        ? 'border-pink-500 bg-pink-50/80 text-pink-900 font-bold shadow-xs'
+                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <span className="text-[11px] font-bold text-pink-600 flex items-center">
+                      📌 Padlet
+                    </span>
+                    <span className="text-[10px] text-slate-500 mt-1 line-clamp-1">Thảo luận nhóm</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => applyPreset('drive')}
+                    className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between ${
+                      linkToolType === 'drive'
+                        ? 'border-amber-500 bg-amber-50/80 text-amber-900 font-bold shadow-xs'
+                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <span className="text-[11px] font-bold text-amber-600 flex items-center">
+                      📁 Google Drive
+                    </span>
+                    <span className="text-[10px] text-slate-500 mt-1 line-clamp-1">Kho học liệu/video</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => applyPreset('sheets')}
+                    className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between ${
+                      linkToolType === 'sheets'
+                        ? 'border-emerald-500 bg-emerald-50/80 text-emerald-900 font-bold shadow-xs'
+                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <span className="text-[11px] font-bold text-emerald-600 flex items-center">
+                      📊 Trang tính
+                    </span>
+                    <span className="text-[10px] text-slate-500 mt-1 line-clamp-1">Bảng tính & số liệu</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => applyPreset('forms')}
+                    className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between ${
+                      linkToolType === 'forms'
+                        ? 'border-purple-500 bg-purple-50/80 text-purple-900 font-bold shadow-xs'
+                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <span className="text-[11px] font-bold text-purple-600 flex items-center">
+                      📝 Google Forms
+                    </span>
+                    <span className="text-[10px] text-slate-500 mt-1 line-clamp-1">Khảo sát & bài tập</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Form Inputs */}
+              <div className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    2. Tiêu Đề Hiển Thị Trên Giáo Án
+                  </label>
+                  <input
+                    type="text"
+                    value={linkTitle}
+                    onChange={e => setLinkTitle(e.target.value)}
+                    placeholder="VD: Bảng Padlet nộp bài thảo luận nhóm 1-4"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    3. Đường Dẫn Liên Kết (URL)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="url"
+                      value={linkUrl}
+                      onChange={e => setLinkUrl(e.target.value)}
+                      placeholder="https://padlet.com/..."
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-8 pr-3 py-2 text-xs text-slate-800 font-mono focus:ring-2 focus:ring-indigo-500 outline-none"
+                    />
+                    <Globe className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    4. Hướng Dẫn Nhiệm Vụ Cho Học Sinh
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={linkDescription}
+                    onChange={e => setLinkDescription(e.target.value)}
+                    placeholder="VD: Học sinh truy cập link Padlet, tải ảnh sản phẩm nhóm và bình luận bài làm..."
+                    className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    5. Vị Trí Hoạt Động Cần Gán (Cột 1: GV & HS)
+                  </label>
+                  <select
+                    value={linkTargetActivity}
+                    onChange={e => setLinkTargetActivity(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  >
+                    <option value="hd1">Hoạt động 1: Mở đầu / Khởi động</option>
+                    <option value="hd2">Hoạt động 2: Hình thành kiến thức mới</option>
+                    <option value="hd3">Hoạt động 3: Luyện tập / Tổng kết</option>
+                    <option value="hd4">Hoạt động 4: Vận dụng / Mở rộng</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex justify-end items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowLinkModal(false)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="button"
+                  onClick={handleInsertLink}
+                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-md hover:shadow-lg transition flex items-center"
+                >
+                  <Link2 className="w-4 h-4 mr-1.5" />
+                  Chèn Link Vào Giáo Án (Cột 1)
+                </button>
+              </div>
             </div>
           </div>
         </div>

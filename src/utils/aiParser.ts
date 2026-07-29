@@ -320,3 +320,113 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
   }
 }
 
+/**
+ * Inserts a Padlet / Google Drive / Google Sheets / Google Forms link card into the lesson HTML.
+ */
+export function injectDigitalToolLink(
+  htmlInput: string,
+  toolType: 'padlet' | 'drive' | 'sheets' | 'forms' | 'other',
+  title: string,
+  url: string,
+  description: string = '',
+  targetActivity: string = 'hd1'
+): string {
+  if (!htmlInput) return '';
+
+  let badgeText = '📌 Padlet';
+  let badgeStyle = 'bg-pink-100 text-pink-800 border border-pink-200';
+
+  if (toolType === 'drive') {
+    badgeText = '📁 Google Drive';
+    badgeStyle = 'bg-amber-100 text-amber-900 border border-amber-200';
+  } else if (toolType === 'sheets') {
+    badgeText = '📊 Google Trang tính';
+    badgeStyle = 'bg-emerald-100 text-emerald-900 border border-emerald-200';
+  } else if (toolType === 'forms') {
+    badgeText = '📝 Google Forms';
+    badgeStyle = 'bg-purple-100 text-purple-900 border border-purple-200';
+  } else if (toolType === 'other') {
+    badgeText = '⚡ Công cụ số';
+    badgeStyle = 'bg-sky-100 text-sky-900 border border-sky-200';
+  }
+
+  const safeUrl = url.trim() || 'https://google.com';
+  const safeTitle = title.trim() || 'Liên kết học liệu số';
+
+  const cardHtml = `
+    <div class="nls-link-card my-3 p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-indigo-300 transition text-xs font-sans">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div class="flex items-start gap-2.5">
+          <span class="inline-flex items-center px-2.5 py-1 rounded-md font-bold text-[11px] ${badgeStyle} shrink-0">
+            ${badgeText}
+          </span>
+          <div>
+            <div class="font-bold text-slate-800 text-xs">${safeTitle}</div>
+            ${description ? `<div class="text-[11px] text-slate-500 mt-0.5">${description}</div>` : ''}
+            <div class="text-[10px] text-indigo-600 font-mono mt-0.5 truncate max-w-xs">${safeUrl}</div>
+          </div>
+        </div>
+        <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] rounded-lg transition shadow-xs shrink-0 no-underline">
+          <span>Truy cập Liên kết</span>
+          <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+      </div>
+    </div>
+  `;
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlInput, 'text/html');
+
+    // Find nodes matching target activity
+    const activityKeywords: Record<string, string[]> = {
+      hd1: ['khởi động', 'mở đầu'],
+      hd2: ['hình thành kiến thức', 'nội dung mới'],
+      hd3: ['luyện tập', 'tổng kết'],
+      hd4: ['vận dụng', 'mở rộng'],
+      muc_tieu: ['mục tiêu', 'yêu cầu cần đạt']
+    };
+
+    const targetKw = activityKeywords[targetActivity] || ['khởi động', 'hoạt động'];
+    const allNodes = Array.from(doc.querySelectorAll('p, div, h1, h2, h3, h4, td'));
+    let inserted = false;
+
+    for (const node of allNodes) {
+      const text = (node.textContent || '').toLowerCase();
+      if (targetKw.some(kw => text.includes(kw)) && text.length < 200) {
+        const parentTd = node.closest('td');
+        if (parentTd) {
+          const row = parentTd.closest('tr');
+          if (row && row.cells.length > 0) {
+            // Append to Cột 1 (Left column)
+            const firstTd = row.cells[0];
+            const div = doc.createElement('div');
+            div.innerHTML = cardHtml;
+            firstTd.appendChild(div);
+            inserted = true;
+            break;
+          }
+        } else {
+          const div = doc.createElement('div');
+          div.innerHTML = cardHtml;
+          node.parentNode?.insertBefore(div, node.nextSibling);
+          inserted = true;
+          break;
+        }
+      }
+    }
+
+    if (!inserted) {
+      const div = doc.createElement('div');
+      div.innerHTML = cardHtml;
+      doc.body.appendChild(div);
+    }
+
+    return ensureInjectionsInLeftColumn(doc.body.innerHTML);
+  } catch (err) {
+    console.error('Error inserting digital tool link:', err);
+    return htmlInput + cardHtml;
+  }
+}
+
+
