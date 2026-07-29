@@ -15,12 +15,14 @@
   animation: marquee 18s linear infinite;
 }
 
-/* Strict Document Table Formatting - Preserves Original Alignments and Column Ratios */
+/* Strict Document Table & Typography Formatting - Justified Text & Uniform Alignments */
 .docx-content {
   width: 100%;
   max-width: 100%;
   word-break: break-word;
   overflow-wrap: break-word;
+  text-align: justify !important;
+  text-justify: inter-word !important;
 }
 
 .docx-content table {
@@ -44,9 +46,15 @@
   overflow-wrap: break-word !important;
   box-sizing: border-box !important;
   border: 1px solid #cbd5e1;
+  text-align: justify !important;
+  text-justify: inter-word !important;
 }
 
-/* Ensure NLS & AI digital competency boxes stay transparent & contained without background fills */
+.docx-content th {
+  text-align: center !important;
+}
+
+/* Ensure NLS & AI digital competency boxes stay transparent & contained with justified text */
 .docx-content .nls-injection,
 .docx-content .nls-box,
 .docx-content .nls-wrapper {
@@ -59,16 +67,43 @@
   background: transparent !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
+  text-align: justify !important;
+  text-justify: inter-word !important;
 }
 
 .docx-content div,
 .docx-content p,
-.docx-content span,
-.docx-content ul,
-.docx-content li {
+.docx-content span {
   max-width: 100% !important;
   word-break: break-word !important;
   overflow-wrap: break-word !important;
   box-sizing: border-box !important;
+  text-align: justify !important;
+  text-justify: inter-word !important;
+}
+
+.docx-content p {
+  margin-top: 2px !important;
+  margin-bottom: 4px !important;
+  text-indent: 0 !important; /* Eliminates irregular first-line hanging indents */
+  text-align: justify !important;
+  text-justify: inter-word !important;
+}
+
+.docx-content ul,
+.docx-content ol {
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+  padding-left: 1.25rem !important;
+  list-style-position: outside !important;
+  text-align: justify !important;
+  text-justify: inter-word !important;
+}
+
+.docx-content li {
+  margin-bottom: 3px !important;
+  text-align: justify !important;
+  text-justify: inter-word !important;
+  text-indent: 0 !important;
 }
 

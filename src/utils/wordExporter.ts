@@ -78,13 +78,13 @@ function formatHtmlForWord(htmlInput: string): string {
             word-break: break-word !important;
             overflow-wrap: break-word !important;
             box-sizing: border-box !important;
-            ${isHeader ? 'background-color: #f3f4f6; font-weight: bold; text-align: center;' : ''}
+            ${isHeader ? 'background-color: #f3f4f6; font-weight: bold; text-align: center;' : 'text-align: justify !important; text-justify: inter-word !important;'}
           `.replace(/\s+/g, ' ').trim());
         });
       });
     });
 
-    // 3. Format NLS injection blocks specifically for Word (transparent background)
+    // 3. Format NLS injection blocks specifically for Word (transparent background & justified text)
     const nlsElements = Array.from(doc.querySelectorAll('.nls-injection, .nls-box, .nls-wrapper'));
     nlsElements.forEach(el => {
       el.setAttribute('style', `
@@ -103,10 +103,12 @@ function formatHtmlForWord(htmlInput: string): string {
         font-size: 11pt !important;
         line-height: 1.35 !important;
         page-break-inside: avoid !important;
+        text-align: justify !important;
+        text-justify: inter-word !important;
       `.replace(/\s+/g, ' ').trim());
     });
 
-    // 4. Format images, blocks, and containers to fit strictly within 100% cell width
+    // 4. Format images, blocks, and containers to fit strictly within 100% cell width with justified text
     const allElements = Array.from(doc.querySelectorAll('div, p, img, pre, code, blockquote, section, iframe, a, span, ul, li'));
     allElements.forEach(el => {
       const tag = el.tagName.toLowerCase();
@@ -117,9 +119,14 @@ function formatHtmlForWord(htmlInput: string): string {
         const cleanedStyle = currentStyle
           .replace(/min-width\s*:[^;]+;?/gi, '')
           .replace(/width\s*:\s*\d+px;?/gi, '')
-          .replace(/max-width\s*:[^;]+;?/gi, '');
+          .replace(/max-width\s*:[^;]+;?/gi, '')
+          .replace(/text-indent\s*:[^;]+;?/gi, ''); // strip erratic text-indents causing uneven lines
 
-        el.setAttribute('style', `${cleanedStyle}; max-width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; word-break: break-word !important; overflow-wrap: break-word !important;`.replace(/;+/g, ';').trim());
+        if (tag === 'p' || tag === 'div' || tag === 'li') {
+          el.setAttribute('style', `${cleanedStyle}; max-width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; word-break: break-word !important; overflow-wrap: break-word !important; text-align: justify !important; text-justify: inter-word !important; text-indent: 0 !important;`.replace(/;+/g, ';').trim());
+        } else {
+          el.setAttribute('style', `${cleanedStyle}; max-width: 100% !important; box-sizing: border-box !important; word-wrap: break-word !important; word-break: break-word !important; overflow-wrap: break-word !important;`.replace(/;+/g, ';').trim());
+        }
       }
     });
 
@@ -168,18 +175,21 @@ export function exportWordDocument(
           color: #000000;
           margin: 0;
           padding: 0;
+          text-align: justify !important;
+          text-justify: inter-word !important;
         }
         .header-section {
-          text-align: center;
+          text-align: center !important;
           margin-bottom: 15pt;
         }
         .school-header {
           font-weight: bold;
           font-size: 12pt;
           text-transform: uppercase;
+          text-align: center !important;
         }
         .main-title {
-          text-align: center;
+          text-align: center !important;
           font-size: 15pt;
           font-weight: bold;
           margin-top: 10pt;
@@ -188,7 +198,7 @@ export function exportWordDocument(
           color: #1e1b4b;
         }
         .sub-title {
-          text-align: center;
+          text-align: center !important;
           font-size: 12pt;
           font-style: italic;
           margin-bottom: 10pt;
@@ -213,11 +223,13 @@ export function exportWordDocument(
           word-break: break-word !important;
           overflow-wrap: break-word !important;
           box-sizing: border-box !important;
+          text-align: justify !important;
+          text-justify: inter-word !important;
         }
         th {
           background-color: #f3f4f6 !important;
           font-weight: bold;
-          text-align: center;
+          text-align: center !important;
         }
         .nls-box, .nls-wrapper, .nls-injection {
           border: 1px solid #3b82f6 !important;
@@ -230,6 +242,8 @@ export function exportWordDocument(
           border-radius: 4pt;
           word-wrap: break-word !important;
           word-break: break-word !important;
+          text-align: justify !important;
+          text-justify: inter-word !important;
         }
         .nls-tag {
           font-weight: bold;
@@ -242,12 +256,25 @@ export function exportWordDocument(
         ul, ol {
           margin-top: 4pt;
           margin-bottom: 4pt;
-          padding-left: 20pt;
+          padding-left: 18pt;
+          text-align: justify !important;
+          text-justify: inter-word !important;
+        }
+        li {
+          margin-bottom: 3pt;
+          text-align: justify !important;
+          text-justify: inter-word !important;
+          text-indent: 0 !important;
         }
         p, div {
           word-wrap: break-word !important;
           word-break: break-word !important;
           overflow-wrap: break-word !important;
+          text-align: justify !important;
+          text-justify: inter-word !important;
+          text-indent: 0 !important;
+          margin-top: 2pt;
+          margin-bottom: 4pt;
         }
       </style>
     </head>
