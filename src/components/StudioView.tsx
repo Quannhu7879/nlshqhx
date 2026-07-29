@@ -375,7 +375,7 @@ export const StudioView: React.FC<StudioViewProps> = ({ onSaveLesson, onShowToas
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-3.5 rounded-xl border border-slate-200">
             <div className="text-xs font-bold text-slate-700 flex items-center">
               <Columns className="w-4 h-4 mr-2 text-indigo-600" />
-              Màn hình so sánh trực quan (Giáo án gốc vs Đã tích hợp NLS & AI)
+              Màn hình so sánh trực quan (Đã tích hợp NLS & AI vs Giáo án gốc)
             </div>
             <button
               onClick={handleRunAI}
@@ -389,23 +389,7 @@ export const StudioView: React.FC<StudioViewProps> = ({ onSaveLesson, onShowToas
 
           {/* Two-Column Editor */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left Column: Original */}
-            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col h-[650px]">
-              <div className="bg-slate-100 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
-                <span className="font-bold text-xs text-slate-700 flex items-center">
-                  <FileText className="w-4 h-4 mr-1.5 text-slate-500" /> Kế Hoạch Bài Dạy Gốc
-                </span>
-                <span className="text-[11px] px-2.5 py-0.5 bg-slate-200 text-slate-700 font-medium rounded-full">
-                  Chưa sửa đổi
-                </span>
-              </div>
-              <div
-                className="p-5 overflow-y-auto custom-scrollbar flex-grow space-y-3 text-slate-800 text-xs leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: originalHtml }}
-              />
-            </div>
-
-            {/* Right Column: AI Integrated */}
+            {/* Left Column: AI Integrated (Khung Năng Lực Số) */}
             <div className="bg-white border border-indigo-200 rounded-2xl overflow-hidden shadow-sm flex flex-col h-[650px]">
               <div className="bg-gradient-to-r from-indigo-50 to-violet-50 px-4 py-3 border-b border-indigo-100 flex justify-between items-center">
                 <span className="font-bold text-xs text-indigo-700 flex items-center">
@@ -430,6 +414,22 @@ export const StudioView: React.FC<StudioViewProps> = ({ onSaveLesson, onShowToas
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Right Column: Original Plan */}
+            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col h-[650px]">
+              <div className="bg-slate-100 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                <span className="font-bold text-xs text-slate-700 flex items-center">
+                  <FileText className="w-4 h-4 mr-1.5 text-slate-500" /> Kế Hoạch Bài Dạy Gốc
+                </span>
+                <span className="text-[11px] px-2.5 py-0.5 bg-slate-200 text-slate-700 font-medium rounded-full">
+                  Chưa sửa đổi
+                </span>
+              </div>
+              <div
+                className="p-5 overflow-y-auto custom-scrollbar flex-grow space-y-3 text-slate-800 text-xs leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: originalHtml }}
+              />
             </div>
           </div>
         </div>

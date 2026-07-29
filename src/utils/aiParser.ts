@@ -180,9 +180,15 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
 
     let injectedCount = 0;
     const bodyContent = doc.body;
-    const allNodes = Array.from(bodyContent.querySelectorAll('p, h1, h2, h3, h4, h5, div, strong, b'));
+
+    // Remove any previous duplicate legal headers or injection blocks before parsing
+    const existingInjections = Array.from(bodyContent.querySelectorAll('.nls-injection'));
+    existingInjections.forEach(el => el.remove());
+
+    const allNodes = Array.from(bodyContent.querySelectorAll('h1, h2, h3, h4, h5, p, div, strong, b'));
 
     let currentPeriodLabel = '';
+    const injectedKeys = new Set<string>();
 
     allNodes.forEach((node) => {
       const txt = (node.textContent || '').trim();
@@ -193,37 +199,61 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
         currentPeriodLabel = txt;
       }
 
-      // Check if we should inject next to this node
-      // Ensure we don't inject inside an existing nls-injection block
+      // Check if inside or near an existing nls-injection block
       if (node.closest('.nls-injection')) return;
-      const nextElem = node.nextElementSibling;
-      if (nextElem && nextElem.classList.contains('nls-injection')) return;
 
-      if (txtLower.includes('mục tiêu') || txtLower.includes('yêu cầu cần đạt')) {
-        const wrapper = doc.createElement('div');
-        wrapper.innerHTML = getGeneratorForActivity('muc-tieu', currentPeriodLabel);
-        node.parentNode?.insertBefore(wrapper, node.nextSibling);
-        injectedCount++;
-      } else if (txtLower.includes('mở đầu') || txtLower.includes('khởi động')) {
-        const wrapper = doc.createElement('div');
-        wrapper.innerHTML = getGeneratorForActivity('hd1', currentPeriodLabel);
-        node.parentNode?.insertBefore(wrapper, node.nextSibling);
-        injectedCount++;
-      } else if (txtLower.includes('hình thành kiến thức') || txtLower.includes('tìm hiểu chi tiết')) {
-        const wrapper = doc.createElement('div');
-        wrapper.innerHTML = getGeneratorForActivity('hd2', currentPeriodLabel);
-        node.parentNode?.insertBefore(wrapper, node.nextSibling);
-        injectedCount++;
-      } else if (txtLower.includes('luyện tập') || txtLower.includes('tổng kết')) {
-        const wrapper = doc.createElement('div');
-        wrapper.innerHTML = getGeneratorForActivity('hd3', currentPeriodLabel);
-        node.parentNode?.insertBefore(wrapper, node.nextSibling);
-        injectedCount++;
-      } else if (txtLower.includes('vận dụng') || txtLower.includes('mở rộng')) {
-        const wrapper = doc.createElement('div');
-        wrapper.innerHTML = getGeneratorForActivity('hd4', currentPeriodLabel);
-        node.parentNode?.insertBefore(wrapper, node.nextSibling);
-        injectedCount++;
+      const sectionKey = (type: string) => `${currentPeriodLabel || 'GLOBAL'}_${type}`;
+
+      if ((txtLower.includes('mục tiêu') || txtLower.includes('yêu cầu cần đạt')) && txt.length < 200) {
+        const key = sectionKey('muc-tieu');
+        if (!injectedKeys.has(key)) {
+          injectedKeys.add(key);
+          const wrapper = doc.createElement('div');
+          wrapper.className = 'nls-wrapper';
+          wrapper.innerHTML = getGeneratorForActivity('muc-tieu', currentPeriodLabel);
+          node.parentNode?.insertBefore(wrapper, node.nextSibling);
+          injectedCount++;
+        }
+      } else if ((txtLower.includes('mở đầu') || txtLower.includes('khởi động')) && txt.length < 200) {
+        const key = sectionKey('hd1');
+        if (!injectedKeys.has(key)) {
+          injectedKeys.add(key);
+          const wrapper = doc.createElement('div');
+          wrapper.className = 'nls-wrapper';
+          wrapper.innerHTML = getGeneratorForActivity('hd1', currentPeriodLabel);
+          node.parentNode?.insertBefore(wrapper, node.nextSibling);
+          injectedCount++;
+        }
+      } else if ((txtLower.includes('hình thành kiến thức') || txtLower.includes('tìm hiểu chi tiết')) && txt.length < 200) {
+        const key = sectionKey('hd2');
+        if (!injectedKeys.has(key)) {
+          injectedKeys.add(key);
+          const wrapper = doc.createElement('div');
+          wrapper.className = 'nls-wrapper';
+          wrapper.innerHTML = getGeneratorForActivity('hd2', currentPeriodLabel);
+          node.parentNode?.insertBefore(wrapper, node.nextSibling);
+          injectedCount++;
+        }
+      } else if ((txtLower.includes('luyện tập') || txtLower.includes('tổng kết')) && txt.length < 200) {
+        const key = sectionKey('hd3');
+        if (!injectedKeys.has(key)) {
+          injectedKeys.add(key);
+          const wrapper = doc.createElement('div');
+          wrapper.className = 'nls-wrapper';
+          wrapper.innerHTML = getGeneratorForActivity('hd3', currentPeriodLabel);
+          node.parentNode?.insertBefore(wrapper, node.nextSibling);
+          injectedCount++;
+        }
+      } else if ((txtLower.includes('vận dụng') || txtLower.includes('mở rộng')) && txt.length < 200) {
+        const key = sectionKey('hd4');
+        if (!injectedKeys.has(key)) {
+          injectedKeys.add(key);
+          const wrapper = doc.createElement('div');
+          wrapper.className = 'nls-wrapper';
+          wrapper.innerHTML = getGeneratorForActivity('hd4', currentPeriodLabel);
+          node.parentNode?.insertBefore(wrapper, node.nextSibling);
+          injectedCount++;
+        }
       }
     });
 
