@@ -107,10 +107,12 @@ CREATE TABLE IF NOT EXISTS public.lesson_plans (
 -- Enable Row Level Security (RLS) and permissive policies
 ALTER TABLE public.lesson_plans ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow public read access to lesson_plans" ON public.lesson_plans;
 CREATE POLICY "Allow public read access to lesson_plans"
   ON public.lesson_plans FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Allow public insert and update access to lesson_plans" ON public.lesson_plans;
 CREATE POLICY "Allow public insert and update access to lesson_plans"
   ON public.lesson_plans FOR ALL
   USING (true)
@@ -128,6 +130,7 @@ CREATE TABLE IF NOT EXISTS public.indicator_tags (
 
 ALTER TABLE public.indicator_tags ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow public access to indicator_tags" ON public.indicator_tags;
 CREATE POLICY "Allow public access to indicator_tags"
   ON public.indicator_tags FOR ALL
   USING (true)
@@ -154,6 +157,7 @@ CREATE TABLE IF NOT EXISTS public.system_config (
 
 ALTER TABLE public.system_config ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow public access to system_config" ON public.system_config;
 CREATE POLICY "Allow public access to system_config"
   ON public.system_config FOR ALL
   USING (true)
@@ -177,6 +181,7 @@ CREATE TABLE IF NOT EXISTS public.user_accounts (
 
 ALTER TABLE public.user_accounts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow public access to user_accounts" ON public.user_accounts;
 CREATE POLICY "Allow public access to user_accounts"
   ON public.user_accounts FOR ALL
   USING (true)
