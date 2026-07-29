@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import mammoth from 'mammoth';
-import { LessonPlan } from '../types';
+import { LessonPlan, User } from '../types';
 import { sampleLessons } from '../data/sampleLessons';
 import { parseAndInjectDigitalCompetencies } from '../utils/aiParser';
 import { exportWordDocument } from '../utils/wordExporter';
@@ -21,12 +21,13 @@ import {
 } from 'lucide-react';
 
 interface StudioViewProps {
+  currentUser?: User | null;
   activePlan?: LessonPlan | null;
   onSaveLesson: (lesson: LessonPlan) => void;
   onShowToast: (msg: string) => void;
 }
 
-export const StudioView: React.FC<StudioViewProps> = ({ activePlan, onSaveLesson, onShowToast }) => {
+export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan, onSaveLesson, onShowToast }) => {
   const [subject, setSubject] = useState('Toán học');
   const [grade, setGrade] = useState('Lớp 10');
   const [framework, setFramework] = useState('TT 02/2025/TT-BGDĐT');
@@ -174,6 +175,8 @@ export const StudioView: React.FC<StudioViewProps> = ({ activePlan, onSaveLesson
         integratedHtml: resultHtml,
         createdAt: Date.now(),
         dateString: new Date().toLocaleDateString('vi-VN'),
+        userId: currentUser?.uid,
+        authorEmail: currentUser?.email,
       };
 
       onSaveLesson(newPlan);
@@ -199,6 +202,8 @@ export const StudioView: React.FC<StudioViewProps> = ({ activePlan, onSaveLesson
         integratedHtml: fallbackHtml,
         createdAt: Date.now(),
         dateString: new Date().toLocaleDateString('vi-VN'),
+        userId: currentUser?.uid,
+        authorEmail: currentUser?.email,
       };
 
       onSaveLesson(newPlan);

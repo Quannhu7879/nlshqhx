@@ -125,10 +125,16 @@ export default function App() {
   };
 
   const handleSaveLessonPlan = async (newPlan: LessonPlan) => {
-    setLessonPlans(prev => [newPlan, ...prev.filter(p => p.id !== newPlan.id)]);
+    const stampedPlan: LessonPlan = {
+      ...newPlan,
+      userId: newPlan.userId || currentUser?.uid,
+      authorEmail: newPlan.authorEmail || currentUser?.email,
+    };
+
+    setLessonPlans(prev => [stampedPlan, ...prev.filter(p => p.id !== stampedPlan.id)]);
 
     if (isSupabaseConfigured()) {
-      const { success, error } = await saveLessonPlanToSupabase(newPlan);
+      const { success, error } = await saveLessonPlanToSupabase(stampedPlan);
       if (success) {
         showToast('Đã lưu & đồng bộ bài dạy trực tiếp lên Supabase Database!');
       } else {
@@ -216,6 +222,7 @@ export default function App() {
 
         {currentView === 'studio' && (
           <StudioView
+            currentUser={currentUser}
             activePlan={activeLessonPlan}
             onSaveLesson={handleSaveLessonPlan}
             onShowToast={showToast}
@@ -224,6 +231,7 @@ export default function App() {
 
         {currentView === 'repository' && (
           <RepositoryView
+            currentUser={currentUser}
             lessonPlans={lessonPlans}
             onOpenPlan={(plan) => {
               setActiveLessonPlan(plan);

@@ -19,6 +19,8 @@ export interface LessonPlan {
   integratedHtml: string;
   createdAt: number;
   dateString: string;
+  userId?: string;
+  authorEmail?: string;
 }
 
 export interface SubCompetency {

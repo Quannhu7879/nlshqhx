@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { LessonPlan, ViewMode } from '../types';
+import React, { useState, useMemo } from 'react';
+import { LessonPlan, User, ViewMode } from '../types';
 import { exportWordDocument } from '../utils/wordExporter';
-import { Search, Eye, Trash2, Plus, Download, FolderOpen, Check, X, FileText, Sparkles, ExternalLink } from 'lucide-react';
+import { Search, Eye, Trash2, Plus, Download, FolderOpen, Check, X, FileText, Sparkles, ExternalLink, ShieldCheck, ShieldAlert, Lock } from 'lucide-react';
 
 interface RepositoryViewProps {
+  currentUser?: User | null;
   lessonPlans: LessonPlan[];
   onOpenPlan: (plan: LessonPlan) => void;
   onDeletePlan: (id: string) => void;
@@ -12,6 +13,7 @@ interface RepositoryViewProps {
 }
 
 export const RepositoryView: React.FC<RepositoryViewProps> = ({
+  currentUser,
   lessonPlans,
   onOpenPlan,
   onDeletePlan,
@@ -23,7 +25,29 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
   const [previewPlan, setPreviewPlan] = useState<LessonPlan | null>(null);
   const [previewTab, setPreviewTab] = useState<'integrated' | 'original'>('integrated');
 
-  const filteredPlans = lessonPlans.filter(item => {
+  // Filter lesson plans based on user ownership/privacy permissions
+  const userPlans = useMemo(() => {
+    if (!currentUser) {
+      // Unauthenticated / Guest: show demo plans or items without specific owner
+      return lessonPlans.filter(item => !item.userId && !item.authorEmail);
+    }
+
+    if (currentUser.role === 'admin') {
+      // Admin account: can view all lesson plans across the system
+      return lessonPlans;
+    }
+
+    // Teacher / Personal account: strictly ONLY view their own created/uploaded lesson plans!
+    return lessonPlans.filter(item => {
+      const isOwnerById = Boolean(item.userId && item.userId === currentUser.uid);
+      const isOwnerByEmail = Boolean(item.authorEmail && item.authorEmail.toLowerCase() === currentUser.email.toLowerCase());
+      // Also match if user created item during current session without id tag yet
+      const isUnclaimedLocal = !item.userId && !item.authorEmail;
+      return isOwnerById || isOwnerByEmail || isUnclaimedLocal;
+    });
+  }, [lessonPlans, currentUser]);
+
+  const filteredPlans = userPlans.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.subject.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSubject = selectedSubjectFilter === 'Tất cả môn học' || item.subject.includes(selectedSubjectFilter);
@@ -44,6 +68,44 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
           <Plus className="w-4 h-4 mr-1.5" /> Tạo Mới
         </button>
       </div>
+
+      {/* Account Privacy Permission Status Banner */}
+      {currentUser ? (
+        currentUser.role === 'admin' ? (
+          <div className="p-3.5 bg-indigo-50/80 border border-indigo-200 text-indigo-900 rounded-xl text-xs font-medium flex items-center justify-between shadow-sm">
+            <div className="flex items-center space-x-2.5">
+              <ShieldAlert className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+              <span>
+                <b>Chế độ Quản trị viên (Admin):</b> Đang hiển thị toàn bộ kho giáo án của mọi tài khoản trong hệ thống ({userPlans.length} kế hoạch bài dạy).
+              </span>
+            </div>
+            <span className="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold border border-indigo-200">
+              Quyền Admin
+            </span>
+          </div>
+        ) : (
+          <div className="p-3.5 bg-emerald-50/80 border border-emerald-200 text-emerald-900 rounded-xl text-xs font-medium flex items-center justify-between shadow-sm">
+            <div className="flex items-center space-x-2.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <span>
+                <b>Kho giáo án cá nhân riêng biệt:</b> Tài khoản <b>{currentUser.email}</b> ({currentUser.displayName}) chỉ có quyền xem & quản lý các giáo án do chính mình tạo ra ({filteredPlans.length} bài).
+              </span>
+            </div>
+            <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold border border-emerald-200">
+              Bảo mật cá nhân
+            </span>
+          </div>
+        )
+      ) : (
+        <div className="p-3.5 bg-amber-50/80 border border-amber-200 text-amber-900 rounded-xl text-xs font-medium flex items-center justify-between shadow-sm">
+          <div className="flex items-center space-x-2.5">
+            <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+            <span>
+              Bạn chưa đăng nhập. Hãy <b>Đăng ký / Đăng nhập tài khoản cá nhân</b> để sở hữu kho giáo án riêng biệt và không bị người khác nhìn thấy.
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
         {/* Search & Filter Bar */}

@@ -22,6 +22,8 @@ function mapRowToLessonPlan(row: any): LessonPlan {
     integratedHtml: row.integrated_html || '',
     createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
     dateString: row.date_string || (row.created_at ? new Date(row.created_at).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN')),
+    userId: row.user_id,
+    authorEmail: row.author_email,
   };
 }
 
@@ -39,6 +41,8 @@ function mapLessonPlanToRow(plan: LessonPlan) {
     integrated_html: plan.integratedHtml,
     created_at: new Date(plan.createdAt).toISOString(),
     date_string: plan.dateString,
+    user_id: plan.userId,
+    author_email: plan.authorEmail,
   };
 }
 
