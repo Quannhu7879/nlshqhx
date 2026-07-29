@@ -74,7 +74,7 @@ Căn cứ pháp lý bắt buộc phải tuân thủ:
 
 YÊU CẦU ĐẦU RA BẮT BUỘC:
 - QUY TẮC BẮT BUỘC VỀ VỊ TRÍ TRONG BẢNG 2 CỘT (CÔNG VĂN 5512): Trong bảng Tiến trình dạy học gồm 2 cột (Cột 1: Hoạt động của GV & HS | Cột 2: Sản phẩm dự kiến / Nội dung), TOÀN BỘ các khối TÍCH HỢP NĂNG LỰC SỐ & AI BẮT BUỘC ĐẶT Ở CỘT BÊN TRÁI (Cột 1: Hoạt động của GV & HS). TUYỆT ĐỐI KHÔNG ĐƯỢC ĐẶT các khối Tích hợp ở cột bên phải (Sản phẩm dự kiến/Nội dung).
-- Ở ĐẦU BÀI DẠY: Tạo khối HTML BẢNG THIẾT LẬP VÀ PHÂN BỔ 6 MIỀN NĂNG LỰC SỐ (TT 02/2025) tổng quan.
+- BẮT ĐẦU TRỰC TIẾP VÀO NỘI DUNG GIÁO ÁN (I. MỤC TIÊU BÀI HỌC): TUYỆT ĐỐI KHÔNG TẠO khối 'CĂN CỨ PHÁP LÝ TÍCH HỢP BẮT BUỘC' hoặc khối 'BẢNG THIẾT LẬP PHÂN BỔ 6 MIỀN NĂNG LỰC SỐ' ở đầu giáo án.
 - Trả về mã HTML đẹp mắt, rõ ràng, giàu định dạng (sử dụng các thẻ <div>, <span>, <ul>, <li>, <b>, <i>, <code>) để hiển thị trực tiếp trong giao diện và xuất file Word (.docx) chuẩn font Times New Roman.
 - Đối với MỖI Tiết/Bài và MỖI Hoạt động dạy học (CV 5512), hãy chèn một khối nổi bật (styled block) giải thích cụ thể vào CỘT BÊN TRÁI:
   + Tên Miền NLS & Mã thẻ chỉ báo NLS/AI áp dụng cho tiết/hoạt động đó.
@@ -104,6 +104,10 @@ ${lessonContent}`;
       let responseText = response.text || '';
       // Clean up markdown block syntax if present
       responseText = responseText.replace(/^```html\s*/i, '').replace(/```$/i, '').trim();
+
+      // Clean up any stray legal headers or 6-domain overview blocks
+      responseText = responseText.replace(/<div[^>]*>(?:(?!<\/div>)[\s\S])*?CĂN CỨ PHÁP LÝ TÍCH HỢP[\s\S]*?<\/div>/gi, '');
+      responseText = responseText.replace(/<div[^>]*>(?:(?!<\/div>)[\s\S])*?THIẾT LẬP PHÂN BỔ 6 MIỀN[\s\S]*?<\/div>/gi, '');
 
       return res.json({ success: true, integratedHtml: responseText, source: 'gemini' });
     } else {
