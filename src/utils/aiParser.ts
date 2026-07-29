@@ -4,13 +4,70 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
   const legalHeader = `
     <div class="bg-rose-50 border-l-4 border-rose-500 p-3 rounded-r-lg mb-4 text-sm shadow-sm">
         <span class="font-bold text-rose-900 block text-xs uppercase mb-1">
-            <i class="fa-solid fa-gavel mr-1"></i> CĂN CỨ PHÁP LÝ TÍCH HỢP
+            <i class="fa-solid fa-gavel mr-1"></i> CĂN CỨ PHÁP LÝ TÍCH HỢP BẮT BUỘC
         </span>
         <p class="text-[11px] text-rose-800 leading-relaxed">
             • Cấu trúc Kế hoạch bài dạy tuân thủ <b>Công văn 5512/BGDĐT-GDTrH</b>.<br>
-            • Khung Chỉ báo Năng lực số áp dụng <b>Thông tư 02/2025/TT-BGDĐT (6 Miền - 24 Năng lực)</b>.<br>
-            • Khung Mạch Năng lực AI áp dụng <b>Quyết định 3439/QĐ-BGDĐT (4 Mạch AI Phổ thông)</b>.
+            • Khung Chỉ báo Năng lực số áp dụng <b>Thông tư 02/2025/TT-BGDĐT (Đủ 6 Miền Năng Lực Số - 24 Năng lực thành phần)</b>.<br>
+            • Khung Mạch Năng lực AI áp dụng <b>Quyết định 3439/QĐ-BGDĐT (4 Mạch Năng lực AI Phổ thông)</b>.
         </p>
+    </div>
+
+    <!-- BẢNG THIẾT LẬP 6 MIỀN NĂNG LỰC SỐ CHO BÀI DẠY -->
+    <div class="bg-slate-900 text-white p-4 rounded-xl mb-5 shadow-md border border-slate-800 text-xs">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-2 mb-3">
+            <span class="font-bold text-amber-400 text-xs uppercase flex items-center">
+                <i class="fa-solid fa-layer-group mr-2 text-indigo-400"></i>
+                THIẾT LẬP PHÂN BỔ 6 MIỀN NĂNG LỰC SỐ (THÔNG TƯ 02/2025/TT-BGDĐT)
+            </span>
+            <span class="bg-emerald-500/20 text-emerald-300 font-mono text-[10px] px-2 py-0.5 rounded border border-emerald-500/30">
+                ✓ 100% ĐÃ KÍCH HOẠT VÀO BÀI DẠY
+            </span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] text-slate-300">
+            <div class="bg-slate-800/80 p-2 rounded border border-slate-700 flex items-start space-x-2">
+                <span class="bg-indigo-500 text-white font-bold px-1.5 py-0.5 rounded text-[9px] shrink-0 font-mono">MIỀN 1</span>
+                <div>
+                    <strong class="text-indigo-200 block">Dữ liệu & Thông tin:</strong>
+                    <span class="text-slate-400 text-[10px]">Tra cứu, khai thác & đánh giá độ tin cậy dữ liệu bài học [NLS 1.1-a, 1.2-b]</span>
+                </div>
+            </div>
+            <div class="bg-slate-800/80 p-2 rounded border border-slate-700 flex items-start space-x-2">
+                <span class="bg-emerald-500 text-white font-bold px-1.5 py-0.5 rounded text-[9px] shrink-0 font-mono">MIỀN 2</span>
+                <div>
+                    <strong class="text-emerald-200 block">Giao tiếp & Hợp tác số:</strong>
+                    <span class="text-slate-400 text-[10px]">Tương tác nhóm trên Padlet/Docs, chia sẻ sản phẩm số [NLS 2.4-a]</span>
+                </div>
+            </div>
+            <div class="bg-slate-800/80 p-2 rounded border border-slate-700 flex items-start space-x-2">
+                <span class="bg-sky-500 text-white font-bold px-1.5 py-0.5 rounded text-[9px] shrink-0 font-mono">MIỀN 3</span>
+                <div>
+                    <strong class="text-sky-200 block">Sáng tạo Nội dung số:</strong>
+                    <span class="text-slate-400 text-[10px]">Thiết kế Canva, mô phỏng GeoGebra/PhET, sơ đồ tư duy [NLS 3.1-a]</span>
+                </div>
+            </div>
+            <div class="bg-slate-800/80 p-2 rounded border border-slate-700 flex items-start space-x-2">
+                <span class="bg-rose-500 text-white font-bold px-1.5 py-0.5 rounded text-[9px] shrink-0 font-mono">MIỀN 4</span>
+                <div>
+                    <strong class="text-rose-200 block">An toàn số & Đạo đức AI:</strong>
+                    <span class="text-slate-400 text-[10px]">Bảo mật thông tin cá nhân, trích dẫn bản quyền [NLS 4.1-a, AI-NLb]</span>
+                </div>
+            </div>
+            <div class="bg-slate-800/80 p-2 rounded border border-slate-700 flex items-start space-x-2">
+                <span class="bg-purple-500 text-white font-bold px-1.5 py-0.5 rounded text-[9px] shrink-0 font-mono">MIỀN 5</span>
+                <div>
+                    <strong class="text-purple-200 block">Giải quyết Vấn đề số:</strong>
+                    <span class="text-slate-400 text-[10px]">Vận dụng công cụ số xử lý tình huống thực tế [NLS 5.3-a]</span>
+                </div>
+            </div>
+            <div class="bg-slate-800/80 p-2 rounded border border-slate-700 flex items-start space-x-2">
+                <span class="bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded text-[9px] shrink-0 font-mono">MIỀN 6</span>
+                <div>
+                    <strong class="text-amber-200 block">Học tập & Kỹ năng số liên tục:</strong>
+                    <span class="text-slate-400 text-[10px]">Tự học qua học liệu mở, viết Prompt hỗ trợ học tập [NLS 6.1-a, AI-NLc]</span>
+                </div>
+            </div>
+        </div>
     </div>
   `;
 
