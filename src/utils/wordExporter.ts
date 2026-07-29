@@ -84,27 +84,26 @@ function formatHtmlForWord(htmlInput: string): string {
       });
     });
 
-    // 3. Format NLS injection blocks specifically for Word
-    const nlsElements = Array.from(doc.querySelectorAll('.nls-injection, .nls-box, .nls-wrapper, [class*="bg-"]'));
+    // 3. Format NLS injection blocks specifically for Word (transparent background)
+    const nlsElements = Array.from(doc.querySelectorAll('.nls-injection, .nls-box, .nls-wrapper'));
     nlsElements.forEach(el => {
-      if (el.classList.contains('nls-injection') || el.classList.contains('nls-box') || el.classList.contains('nls-wrapper') || (el.textContent || '').includes('TÍCH HỢP')) {
-        el.setAttribute('style', `
-          width: 100% !important;
-          max-width: 100% !important;
-          box-sizing: border-box !important;
-          word-wrap: break-word !important;
-          word-break: break-word !important;
-          overflow-wrap: break-word !important;
-          border: 1px solid #2563eb !important;
-          background-color: #f0f7ff !important;
-          padding: 5pt 6pt !important;
-          margin-top: 4pt !important;
-          margin-bottom: 6pt !important;
-          font-size: 11pt !important;
-          line-height: 1.35 !important;
-          page-break-inside: avoid !important;
-        `.replace(/\s+/g, ' ').trim());
-      }
+      el.setAttribute('style', `
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+        border: 1px solid #2563eb !important;
+        background-color: transparent !important;
+        background: transparent !important;
+        padding: 5pt 6pt !important;
+        margin-top: 4pt !important;
+        margin-bottom: 6pt !important;
+        font-size: 11pt !important;
+        line-height: 1.35 !important;
+        page-break-inside: avoid !important;
+      `.replace(/\s+/g, ' ').trim());
     });
 
     // 4. Format images, blocks, and containers to fit strictly within 100% cell width
@@ -197,7 +196,6 @@ export function exportWordDocument(
         table {
           width: 100% !important;
           max-width: 100% !important;
-          table-layout: fixed !important;
           border-collapse: collapse !important;
           mso-table-lspace: 0pt;
           mso-table-rspace: 0pt;
@@ -216,14 +214,6 @@ export function exportWordDocument(
           overflow-wrap: break-word !important;
           box-sizing: border-box !important;
         }
-        table tr td:first-child, table tr td:nth-child(1) {
-          width: 50% !important;
-          max-width: 50% !important;
-        }
-        table tr td:nth-child(2) {
-          width: 50% !important;
-          max-width: 50% !important;
-        }
         th {
           background-color: #f3f4f6 !important;
           font-weight: bold;
@@ -231,7 +221,8 @@ export function exportWordDocument(
         }
         .nls-box, .nls-wrapper, .nls-injection {
           border: 1px solid #3b82f6 !important;
-          background-color: #f0f7ff !important;
+          background-color: transparent !important;
+          background: transparent !important;
           padding: 8pt !important;
           margin-top: 6pt !important;
           margin-bottom: 8pt !important;
@@ -243,7 +234,8 @@ export function exportWordDocument(
         .nls-tag {
           font-weight: bold;
           color: #1e3a8a;
-          background-color: #dbeafe;
+          background-color: transparent !important;
+          border: 1px solid #93c5fd;
           padding: 2pt 4pt;
           border-radius: 2pt;
         }

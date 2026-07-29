@@ -92,24 +92,6 @@ export function ensureInjectionsInLeftColumn(htmlInput: string): string {
       }
     });
 
-    // Enforce fixed 50/50 table column widths and wrapping on all tables
-    const tables = Array.from(doc.querySelectorAll('table'));
-    tables.forEach(table => {
-      table.setAttribute('width', '100%');
-      table.setAttribute('style', 'width: 100% !important; max-width: 100% !important; table-layout: fixed !important; border-collapse: collapse !important;');
-
-      const rows = Array.from(table.querySelectorAll('tr'));
-      rows.forEach(row => {
-        const cells = Array.from(row.querySelectorAll('td, th'));
-        if (cells.length === 2) {
-          cells[0].setAttribute('width', '50%');
-          cells[0].setAttribute('style', 'width: 50% !important; max-width: 50% !important; vertical-align: top !important; word-wrap: break-word !important; word-break: break-word !important; overflow-wrap: break-word !important; box-sizing: border-box !important;');
-          cells[1].setAttribute('width', '50%');
-          cells[1].setAttribute('style', 'width: 50% !important; max-width: 50% !important; vertical-align: top !important; word-wrap: break-word !important; word-break: break-word !important; overflow-wrap: break-word !important; box-sizing: border-box !important;');
-        }
-      });
-    });
-
     return doc.body.innerHTML;
   } catch (err) {
     console.error('Error ensuring injections in left column:', err);
@@ -151,18 +133,18 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
 
       if (type === 'muc-tieu') {
         return `
-          <div class="bg-indigo-50/90 border border-indigo-200 p-2.5 rounded-lg my-2 shadow-xs border-l-4 border-l-indigo-600 nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important;">
+          <div class="border border-indigo-300 border-l-4 border-l-indigo-600 bg-transparent p-2.5 rounded-lg my-2 shadow-xs nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important; background-color: transparent !important;">
               <div class="font-bold text-indigo-900 text-[11px] uppercase mb-1 leading-snug break-words" style="word-break:break-word; overflow-wrap:break-word;">
-                <i class="fa-solid fa-robot mr-1 text-amber-500"></i> BỔ SUNG MỤC TIÊU NĂNG LỰC SỐ & AI
+                <i class="fa-solid fa-robot mr-1 text-indigo-600"></i> BỔ SUNG MỤC TIÊU NĂNG LỰC SỐ & AI
                 ${periodSubTitle}
               </div>
               <ul class="list-none pl-1 text-slate-700 space-y-1.5 leading-relaxed m-0" style="word-break:break-word; overflow-wrap:break-word;">
                   <li>
-                      <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 1.1-a & 6.1-a]</span> 
+                      <span class="border border-indigo-300 text-indigo-900 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px] bg-transparent">[NLS 1.1-a & 6.1-a]</span> 
                       <b>Khai thác & Tự học số:</b> Học sinh chủ động tra cứu, tìm kiếm và sử dụng học liệu số, tài nguyên trực tuyến bổ trợ cho ${topicText}.
                   </li>
                   <li>
-                      <span class="bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[AI-NLb: Đạo đức AI]</span> 
+                      <span class="border border-amber-300 text-amber-900 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px] bg-transparent">[AI-NLb: Đạo đức AI]</span> 
                       <b>Đạo đức AI & Trách nhiệm số:</b> Sử dụng công cụ AI minh bạch, tôn trọng bản quyền học liệu và có tư duy phản biện với thông tin số.
                   </li>
               </ul>
@@ -171,16 +153,16 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
       }
       if (type === 'hd1') {
         return `
-          <div class="bg-amber-50/90 border border-amber-200 p-2.5 rounded-lg my-2 shadow-xs border-l-4 border-l-amber-500 nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important;">
+          <div class="border border-amber-300 border-l-4 border-l-amber-500 bg-transparent p-2.5 rounded-lg my-2 shadow-xs nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important; background-color: transparent !important;">
               <div class="font-bold text-amber-900 text-[11px] uppercase mb-1 leading-snug break-words" style="word-break:break-word; overflow-wrap:break-word;">
                 <i class="fa-solid fa-bolt mr-1 text-amber-500"></i> TÍCH HỢP HOẠT ĐỘNG KHỞI ĐỘNG (SỐ & AI)
                 ${periodSubTitle}
               </div>
               <ul class="list-none pl-1 text-slate-700 space-y-1.5 leading-relaxed m-0" style="word-break:break-word; overflow-wrap:break-word;">
                   <li>
-                      <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 1.1-a]</span> 
+                      <span class="border border-indigo-300 text-indigo-900 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px] bg-transparent">[NLS 1.1-a]</span> 
                       <b>Tương tác số khởi động:</b> Giáo viên tổ chức trò chơi tương tác trên Quizizz/Kahoot hoặc quét mã QR khởi động cho ${topicText}.
-                      <div class="mt-1.5 pl-2 border-l-2 border-amber-300 text-amber-900 bg-amber-100/40 py-1 pr-2 rounded-r text-[11px]" style="word-break:break-word;">
+                      <div class="mt-1.5 pl-2 border-l-2 border-amber-400 text-slate-800 bg-transparent py-1 pr-2 rounded-r text-[11px]" style="word-break:break-word;">
                           <i>💡 <b>Ví dụ:</b> Học sinh quét mã QR tham gia khảo sát nhanh 3 câu hỏi trắc nghiệm liên quan đến ${topicText}. Hệ thống hiển thị biểu đồ kết quả tức thì.</i>
                       </div>
                   </li>
@@ -190,18 +172,18 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
       }
       if (type === 'hd2') {
         return `
-          <div class="bg-rose-50/90 border border-rose-200 p-2.5 rounded-lg my-2 shadow-xs border-l-4 border-l-rose-500 nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important;">
+          <div class="border border-rose-300 border-l-4 border-l-rose-500 bg-transparent p-2.5 rounded-lg my-2 shadow-xs nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important; background-color: transparent !important;">
               <div class="font-bold text-rose-900 text-[11px] uppercase mb-1 leading-snug break-words" style="word-break:break-word; overflow-wrap:break-word;">
                 <i class="fa-solid fa-layer-group mr-1 text-rose-500"></i> TÍCH HỢP HOẠT ĐỘNG HÌNH THÀNH KIẾN THỨC (ĐA MIỀN NLS)
                 ${periodSubTitle}
               </div>
               <ul class="list-none pl-1 text-slate-700 space-y-1.5 leading-relaxed m-0" style="word-break:break-word; overflow-wrap:break-word;">
                   <li>
-                      <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 1.2-b & 2.4-a]</span> 
+                      <span class="border border-indigo-300 text-indigo-900 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px] bg-transparent">[NLS 1.2-b & 2.4-a]</span> 
                       <b>Khai thác & Hợp tác số:</b> Học sinh tra cứu tài liệu mở (Wikipedia Edu, Sách số), thảo luận nhóm trên Padlet/Google Docs để phân tích nội dung trọng tâm của ${topicText}.
                   </li>
                   <li>
-                      <span class="bg-purple-100 text-purple-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[AI-NLc: Prompting]</span> 
+                      <span class="border border-purple-300 text-purple-900 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px] bg-transparent">[AI-NLc: Prompting]</span> 
                       <b>Kĩ thuật Kỹ năng Prompt AI:</b> Học sinh đóng vai trò người điều khiển, nhập câu lệnh Prompt mở cho Trợ lý AI giải thích các khái niệm phức tạp trong ${topicText}.
                   </li>
               </ul>
@@ -210,14 +192,14 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
       }
       if (type === 'hd3') {
         return `
-          <div class="bg-sky-50/90 border border-sky-200 p-2.5 rounded-lg my-2 shadow-xs border-l-4 border-l-sky-500 nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important;">
+          <div class="border border-sky-300 border-l-4 border-l-sky-500 bg-transparent p-2.5 rounded-lg my-2 shadow-xs nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important; background-color: transparent !important;">
               <div class="font-bold text-sky-900 text-[11px] uppercase mb-1 leading-snug break-words" style="word-break:break-word; overflow-wrap:break-word;">
                 <i class="fa-solid fa-pen-ruler mr-1 text-sky-500"></i> TÍCH HỢP HOẠT ĐỘNG LUYỆN TẬP (SÁNG TẠO SỐ)
                 ${periodSubTitle}
               </div>
               <ul class="list-none pl-1 text-slate-700 space-y-1.5 leading-relaxed m-0" style="word-break:break-word; overflow-wrap:break-word;">
                   <li>
-                      <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 3.1-a & 5.3-a]</span> 
+                      <span class="border border-indigo-300 text-indigo-900 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px] bg-transparent">[NLS 3.1-a & 5.3-a]</span> 
                       <b>Sáng tạo & Mô phỏng số:</b> Học sinh sử dụng phần mềm sơ đồ tư duy (Canva, XMind) hoặc phần mềm mô phỏng (GeoGebra, PhET) để tổng kết và luyện tập nội dung ${topicText}.
                   </li>
               </ul>
@@ -226,14 +208,14 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
       }
       if (type === 'hd4') {
         return `
-          <div class="bg-purple-50/90 border border-purple-200 p-2.5 rounded-lg my-2 shadow-xs border-l-4 border-l-purple-500 nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important;">
+          <div class="border border-purple-300 border-l-4 border-l-purple-500 bg-transparent p-2.5 rounded-lg my-2 shadow-xs nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important; background-color: transparent !important;">
               <div class="font-bold text-purple-900 text-[11px] uppercase mb-1 leading-snug break-words" style="word-break:break-word; overflow-wrap:break-word;">
                 <i class="fa-solid fa-rocket mr-1 text-purple-500"></i> TÍCH HỢP HOẠT ĐỘNG VẬN DỤNG (GIẢI QUYẾT VẤN ĐỀ)
                 ${periodSubTitle}
               </div>
               <ul class="list-none pl-1 text-slate-700 space-y-1.5 leading-relaxed m-0" style="word-break:break-word; overflow-wrap:break-word;">
                   <li>
-                      <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px]">[NLS 4.1-a & 5.3-a]</span> 
+                      <span class="border border-indigo-300 text-indigo-900 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px] bg-transparent">[NLS 4.1-a & 5.3-a]</span> 
                       <b>Sản phẩm số vận dụng:</b> Vận dụng kiến thức thiết kế Infographic, Video ngắn thuyết minh sản phẩm hoặc mô hình số liên hệ thực tiễn bài học.
                   </li>
               </ul>

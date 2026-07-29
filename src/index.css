@@ -15,7 +15,7 @@
   animation: marquee 18s linear infinite;
 }
 
-/* Strict Document Table Formatting to Prevent A4 Overflow & Column Distortions */
+/* Strict Document Table Formatting - Preserves Original Alignments and Column Ratios */
 .docx-content {
   width: 100%;
   max-width: 100%;
@@ -26,7 +26,6 @@
 .docx-content table {
   width: 100% !important;
   max-width: 100% !important;
-  table-layout: fixed !important;
   border-collapse: collapse !important;
   margin-top: 8px;
   margin-bottom: 12px;
@@ -47,19 +46,7 @@
   border: 1px solid #cbd5e1;
 }
 
-/* Enforce equal 50/50 split for 2-column lesson plan tables (CV 5512) */
-.docx-content table tr td:first-child,
-.docx-content table tr td:nth-child(1) {
-  width: 50% !important;
-  max-width: 50% !important;
-}
-
-.docx-content table tr td:nth-child(2) {
-  width: 50% !important;
-  max-width: 50% !important;
-}
-
-/* Ensure NLS & AI digital competency boxes stay 100% contained within the column */
+/* Ensure NLS & AI digital competency boxes stay transparent & contained without background fills */
 .docx-content .nls-injection,
 .docx-content .nls-box,
 .docx-content .nls-wrapper {
@@ -68,6 +55,8 @@
   box-sizing: border-box !important;
   word-break: break-word !important;
   overflow-wrap: break-word !important;
+  background-color: transparent !important;
+  background: transparent !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
