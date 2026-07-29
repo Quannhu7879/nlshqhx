@@ -1046,7 +1046,7 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
                     onChange={e => setManualTargetActivity(e.target.value)}
                     className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-purple-500 outline-none shadow-xs"
                   >
-                    <option value="muc_tieu">I. Bổ sung Mục tiêu Năng lực số & AI</option>
+                    <option value="muc_tieu">I. Tích hợp Năng lực số & AI (Mục tiêu)</option>
                     <option value="hd1">II. Hoạt động 1: Mở đầu / Khởi động</option>
                     <option value="hd2">II. Hoạt động 2: Hình thành kiến thức mới</option>
                     <option value="hd3">II. Hoạt động 3: Luyện tập / Tổng kết</option>

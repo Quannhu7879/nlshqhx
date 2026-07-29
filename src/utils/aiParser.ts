@@ -63,6 +63,7 @@ export function ensureInjectionsInLeftColumn(htmlInput: string): string {
         node.classList.contains('nls-wrapper') ||
         node.classList.contains('nls-box') ||
         text.includes('TÍCH HỢP HOẠT ĐỘNG') ||
+        text.includes('TÍCH HỢP NĂNG LỰC SỐ') ||
         text.includes('BỔ SUNG MỤC TIÊU NĂNG LỰC SỐ') ||
         text.includes('TÍCH HỢP HOẠT ĐỘNG KHỞI ĐỘNG') ||
         text.includes('TÍCH HỢP HOẠT ĐỘNG HÌNH THÀNH KIẾN THỨC') ||
@@ -135,7 +136,7 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
         return `
           <div class="border border-indigo-300 border-l-4 border-l-indigo-600 bg-transparent p-2.5 rounded-lg my-2 shadow-xs nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important; background-color: transparent !important;">
               <div class="font-bold text-indigo-900 text-[11px] uppercase mb-1 leading-snug break-words" style="word-break:break-word; overflow-wrap:break-word;">
-                <i class="fa-solid fa-robot mr-1 text-indigo-600"></i> BỔ SUNG MỤC TIÊU NĂNG LỰC SỐ & AI
+                <i class="fa-solid fa-robot mr-1 text-indigo-600"></i> TÍCH HỢP NĂNG LỰC SỐ & AI
                 ${periodSubTitle}
               </div>
               <ul class="list-none pl-1 text-slate-700 space-y-1.5 leading-relaxed m-0" style="word-break:break-word; overflow-wrap:break-word;">
