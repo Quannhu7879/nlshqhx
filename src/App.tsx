@@ -50,6 +50,7 @@ const INITIAL_DEMO_PLANS: LessonPlan[] = [
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('landing');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [activeLessonPlan, setActiveLessonPlan] = useState<LessonPlan | null>(null);
 
   // Auth Modal State
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -214,13 +215,19 @@ export default function App() {
         {currentView === 'landing' && <LandingView onSwitchView={setCurrentView} />}
 
         {currentView === 'studio' && (
-          <StudioView onSaveLesson={handleSaveLessonPlan} onShowToast={showToast} />
+          <StudioView
+            activePlan={activeLessonPlan}
+            onSaveLesson={handleSaveLessonPlan}
+            onShowToast={showToast}
+          />
         )}
 
         {currentView === 'repository' && (
           <RepositoryView
             lessonPlans={lessonPlans}
-            onOpenPlan={() => setCurrentView('studio')}
+            onOpenPlan={(plan) => {
+              setActiveLessonPlan(plan);
+            }}
             onDeletePlan={handleDeleteLessonPlan}
             onSwitchView={setCurrentView}
             onShowToast={showToast}

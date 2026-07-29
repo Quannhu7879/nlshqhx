@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LessonPlan, ViewMode } from '../types';
 import { exportWordDocument } from '../utils/wordExporter';
-import { Search, Eye, Trash2, Plus, Download, FolderOpen, Check } from 'lucide-react';
+import { Search, Eye, Trash2, Plus, Download, FolderOpen, Check, X, FileText, Sparkles, ExternalLink } from 'lucide-react';
 
 interface RepositoryViewProps {
   lessonPlans: LessonPlan[];
@@ -20,6 +20,8 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState('Tất cả môn học');
+  const [previewPlan, setPreviewPlan] = useState<LessonPlan | null>(null);
+  const [previewTab, setPreviewTab] = useState<'integrated' | 'original'>('integrated');
 
   const filteredPlans = lessonPlans.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -109,9 +111,9 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
                       <button
                         onClick={() => {
                           onOpenPlan(item);
-                          onSwitchView('studio');
+                          setPreviewPlan(item);
                         }}
-                        className="text-indigo-600 hover:text-indigo-800 font-semibold text-xs transition inline-flex items-center"
+                        className="text-indigo-600 hover:text-indigo-800 font-semibold text-xs transition inline-flex items-center bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200 hover:bg-indigo-100"
                       >
                         <Eye className="w-3.5 h-3.5 mr-1" /> Xem lại
                       </button>
@@ -145,6 +147,121 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
           </table>
         </div>
       </div>
+
+      {/* Preview Modal ("Xem lại") */}
+      {previewPlan && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 flex items-center">
+                  <Eye className="w-5 h-5 text-indigo-600 mr-2" /> Xem Lại Giáo Án: {previewPlan.title}
+                </h2>
+                <div className="flex items-center space-x-2 text-xs text-slate-500 mt-1">
+                  <span>{previewPlan.subject} - {previewPlan.grade}</span>
+                  <span>•</span>
+                  <span className="font-medium text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+                    {previewPlan.framework}
+                  </span>
+                  <span>•</span>
+                  <span>Ngày tạo: {previewPlan.dateString}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setPreviewPlan(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Tabs */}
+            <div className="px-4 pt-3 bg-white border-b border-slate-200 flex justify-between items-center">
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setPreviewTab('integrated')}
+                  className={`px-4 py-2 text-xs font-bold rounded-t-lg transition flex items-center border-b-2 ${
+                    previewTab === 'integrated'
+                      ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
+                      : 'border-transparent text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
+                  Đã Tích Hợp NLS & AI
+                </button>
+                <button
+                  onClick={() => setPreviewTab('original')}
+                  className={`px-4 py-2 text-xs font-bold rounded-t-lg transition flex items-center border-b-2 ${
+                    previewTab === 'original'
+                      ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
+                      : 'border-transparent text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+                  Giáo Án Gốc
+                </button>
+              </div>
+
+              <button
+                onClick={() => {
+                  onOpenPlan(previewPlan);
+                  onSwitchView('studio');
+                  setPreviewPlan(null);
+                }}
+                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center hover:underline mb-2"
+              >
+                Mở trong Studio Workstation <ExternalLink className="w-3.5 h-3.5 ml-1" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto max-h-[60vh] text-slate-800 text-xs leading-relaxed space-y-4 font-sans">
+              {previewTab === 'integrated' ? (
+                <div
+                  className="prose prose-sm max-w-none space-y-3"
+                  dangerouslySetInnerHTML={{ __html: previewPlan.integratedHtml || '<p className="text-slate-400 italic">Chưa có nội dung tích hợp.</p>' }}
+                />
+              ) : (
+                <div
+                  className="prose prose-sm max-w-none space-y-3"
+                  dangerouslySetInnerHTML={{ __html: previewPlan.originalHtml || '<p className="text-slate-400 italic">Chưa có nội dung gốc.</p>' }}
+                />
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-between items-center">
+              <span className="text-xs text-slate-500">
+                Tự động định dạng font Times New Roman chuẩn Công văn 5512/BGDĐT
+              </span>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => {
+                    exportWordDocument(
+                      previewPlan.integratedHtml,
+                      previewPlan.title,
+                      previewPlan.subject,
+                      previewPlan.grade
+                    );
+                    onShowToast('Đã tải xuống file Word!');
+                  }}
+                  className="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg hover:bg-emerald-700 transition flex items-center shadow-sm"
+                >
+                  <Download className="w-3.5 h-3.5 mr-1.5" /> Tải File Word (.docx)
+                </button>
+                <button
+                  onClick={() => setPreviewPlan(null)}
+                  className="px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg hover:bg-slate-300 transition"
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+

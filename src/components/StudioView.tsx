@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import mammoth from 'mammoth';
 import { LessonPlan } from '../types';
 import { sampleLessons } from '../data/sampleLessons';
@@ -21,11 +21,12 @@ import {
 } from 'lucide-react';
 
 interface StudioViewProps {
+  activePlan?: LessonPlan | null;
   onSaveLesson: (lesson: LessonPlan) => void;
   onShowToast: (msg: string) => void;
 }
 
-export const StudioView: React.FC<StudioViewProps> = ({ onSaveLesson, onShowToast }) => {
+export const StudioView: React.FC<StudioViewProps> = ({ activePlan, onSaveLesson, onShowToast }) => {
   const [subject, setSubject] = useState('Toán học');
   const [grade, setGrade] = useState('Lớp 10');
   const [framework, setFramework] = useState('TT 02/2025/TT-BGDĐT');
@@ -38,6 +39,20 @@ export const StudioView: React.FC<StudioViewProps> = ({ onSaveLesson, onShowToas
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  // Load activePlan if passed from Repository ("Xem lại")
+  useEffect(() => {
+    if (activePlan) {
+      setSubject(activePlan.subject || 'Toán học');
+      setGrade(activePlan.grade || 'Lớp 10');
+      setFramework(activePlan.framework || 'TT 02/2025/TT-BGDĐT');
+      setTemplate(activePlan.template || 'CV 5512/BGDĐT-GDTrH');
+      setLessonTitle(activePlan.title || 'Bài dạy');
+      setOriginalHtml(activePlan.originalHtml || '');
+      setIntegratedHtml(activePlan.integratedHtml || '');
+      setHasFileUploaded(true);
+    }
+  }, [activePlan]);
 
   // File Upload Handler (.docx / .txt)
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
