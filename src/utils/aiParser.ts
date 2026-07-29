@@ -1,3 +1,61 @@
+/**
+ * Utility to move all digital competency & AI integration blocks to the LEFT column
+ * (Cột 1: Hoạt động của Giáo viên và Học sinh) in 2-column CV 5512 lesson plan tables.
+ */
+export function ensureInjectionsInLeftColumn(htmlInput: string): string {
+  if (!htmlInput) return '';
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlInput, 'text/html');
+
+    // Find all injection candidates or blocks
+    const candidates = Array.from(doc.querySelectorAll('div, section, td, p'));
+    const injectionBlocks: Element[] = [];
+
+    candidates.forEach(node => {
+      const text = (node.textContent || '').toUpperCase();
+      const isBlock =
+        node.classList.contains('nls-injection') ||
+        node.classList.contains('nls-wrapper') ||
+        node.classList.contains('nls-box') ||
+        text.includes('TÍCH HỢP HOẠT ĐỘNG') ||
+        text.includes('BỔ SUNG MỤC TIÊU NĂNG LỰC SỐ') ||
+        text.includes('TÍCH HỢP HOẠT ĐỘNG KHỞI ĐỘNG') ||
+        text.includes('TÍCH HỢP HOẠT ĐỘNG HÌNH THÀNH KIẾN THỨC') ||
+        text.includes('TÍCH HỢP HOẠT ĐỘNG LUYỆN TẬP') ||
+        text.includes('TÍCH HỢP HOẠT ĐỘNG VẬN DỤNG');
+
+      if (isBlock) {
+        // Pick top-level wrapper block
+        const topBlock = node.closest('.nls-wrapper') || node.closest('.nls-injection') || node.closest('.nls-box') || node;
+        if (!injectionBlocks.includes(topBlock)) {
+          injectionBlocks.push(topBlock);
+        }
+      }
+    });
+
+    // Relocate each block to the left column (row.cells[0])
+    injectionBlocks.forEach(block => {
+      const parentTd = block.closest('td');
+      if (parentTd) {
+        const row = parentTd.closest('tr');
+        if (row && row.cells.length > 1) {
+          const firstTd = row.cells[0]; // Cột 1: Hoạt động của GV & HS (Cột bên trái)
+          if (parentTd !== firstTd && !firstTd.contains(block)) {
+            firstTd.appendChild(block);
+          }
+        }
+      }
+    });
+
+    return doc.body.innerHTML;
+  } catch (err) {
+    console.error('Error ensuring injections in left column:', err);
+    return htmlInput;
+  }
+}
+
 export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: string = 'Toán học', grade: string = 'Lớp 10'): string {
   if (!htmlInput) return '';
 
@@ -190,70 +248,52 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
     let currentPeriodLabel = '';
     const injectedKeys = new Set<string>();
 
+    const insertWrapperForNode = (node: Element, type: 'muc-tieu' | 'hd1' | 'hd2' | 'hd3' | 'hd4') => {
+      const key = `${currentPeriodLabel || 'GLOBAL'}_${type}`;
+      if (injectedKeys.has(key)) return;
+
+      injectedKeys.add(key);
+      const wrapper = doc.createElement('div');
+      wrapper.className = 'nls-wrapper';
+      wrapper.innerHTML = getGeneratorForActivity(type, currentPeriodLabel);
+
+      // If node is inside a table cell (<td>), ALWAYS insert into Column 1 (Left column)
+      const parentTd = node.closest('td');
+      if (parentTd) {
+        const row = parentTd.closest('tr');
+        if (row && row.cells.length > 0) {
+          const firstTd = row.cells[0]; // Left column (Hoạt động GV & HS)
+          firstTd.appendChild(wrapper);
+          injectedCount++;
+          return;
+        }
+      }
+
+      node.parentNode?.insertBefore(wrapper, node.nextSibling);
+      injectedCount++;
+    };
+
     allNodes.forEach((node) => {
       const txt = (node.textContent || '').trim();
       const txtLower = txt.toLowerCase();
 
-      // Check if this node represents a Period/Lesson header (e.g. "TIẾT 1", "TIẾT 2", "BÀI 1", "BÀI 2", "CHỦ ĐỀ 1")
+      // Check if this node represents a Period/Lesson header
       if (/(tiết\s+\d+|bài\s+\d+|chủ đề\s+\d+|tuần\s+\d+)/i.test(txt) && txt.length < 100) {
         currentPeriodLabel = txt;
       }
 
-      // Check if inside or near an existing nls-injection block
       if (node.closest('.nls-injection')) return;
 
-      const sectionKey = (type: string) => `${currentPeriodLabel || 'GLOBAL'}_${type}`;
-
       if ((txtLower.includes('mục tiêu') || txtLower.includes('yêu cầu cần đạt')) && txt.length < 200) {
-        const key = sectionKey('muc-tieu');
-        if (!injectedKeys.has(key)) {
-          injectedKeys.add(key);
-          const wrapper = doc.createElement('div');
-          wrapper.className = 'nls-wrapper';
-          wrapper.innerHTML = getGeneratorForActivity('muc-tieu', currentPeriodLabel);
-          node.parentNode?.insertBefore(wrapper, node.nextSibling);
-          injectedCount++;
-        }
+        insertWrapperForNode(node, 'muc-tieu');
       } else if ((txtLower.includes('mở đầu') || txtLower.includes('khởi động')) && txt.length < 200) {
-        const key = sectionKey('hd1');
-        if (!injectedKeys.has(key)) {
-          injectedKeys.add(key);
-          const wrapper = doc.createElement('div');
-          wrapper.className = 'nls-wrapper';
-          wrapper.innerHTML = getGeneratorForActivity('hd1', currentPeriodLabel);
-          node.parentNode?.insertBefore(wrapper, node.nextSibling);
-          injectedCount++;
-        }
+        insertWrapperForNode(node, 'hd1');
       } else if ((txtLower.includes('hình thành kiến thức') || txtLower.includes('tìm hiểu chi tiết')) && txt.length < 200) {
-        const key = sectionKey('hd2');
-        if (!injectedKeys.has(key)) {
-          injectedKeys.add(key);
-          const wrapper = doc.createElement('div');
-          wrapper.className = 'nls-wrapper';
-          wrapper.innerHTML = getGeneratorForActivity('hd2', currentPeriodLabel);
-          node.parentNode?.insertBefore(wrapper, node.nextSibling);
-          injectedCount++;
-        }
+        insertWrapperForNode(node, 'hd2');
       } else if ((txtLower.includes('luyện tập') || txtLower.includes('tổng kết')) && txt.length < 200) {
-        const key = sectionKey('hd3');
-        if (!injectedKeys.has(key)) {
-          injectedKeys.add(key);
-          const wrapper = doc.createElement('div');
-          wrapper.className = 'nls-wrapper';
-          wrapper.innerHTML = getGeneratorForActivity('hd3', currentPeriodLabel);
-          node.parentNode?.insertBefore(wrapper, node.nextSibling);
-          injectedCount++;
-        }
+        insertWrapperForNode(node, 'hd3');
       } else if ((txtLower.includes('vận dụng') || txtLower.includes('mở rộng')) && txt.length < 200) {
-        const key = sectionKey('hd4');
-        if (!injectedKeys.has(key)) {
-          injectedKeys.add(key);
-          const wrapper = doc.createElement('div');
-          wrapper.className = 'nls-wrapper';
-          wrapper.innerHTML = getGeneratorForActivity('hd4', currentPeriodLabel);
-          node.parentNode?.insertBefore(wrapper, node.nextSibling);
-          injectedCount++;
-        }
+        insertWrapperForNode(node, 'hd4');
       }
     });
 
@@ -271,9 +311,12 @@ export function parseAndInjectDigitalCompetencies(htmlInput: string, subject: st
       bodyContent.appendChild(fullWrapper);
     }
 
-    return legalHeader + '<div class="docx-content space-y-3 leading-relaxed text-sm text-slate-800">' + bodyContent.innerHTML + '</div>';
+    // Post-process: Relocate any remaining injection blocks from column 2 (Right) to column 1 (Left)
+    const combinedHtml = legalHeader + '<div class="docx-content space-y-3 leading-relaxed text-sm text-slate-800">' + bodyContent.innerHTML + '</div>';
+    return ensureInjectionsInLeftColumn(combinedHtml);
   } catch (err) {
     console.error('Error parsing lesson HTML:', err);
     return legalHeader + htmlInput;
   }
 }
+

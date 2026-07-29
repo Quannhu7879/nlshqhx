@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import mammoth from 'mammoth';
 import { LessonPlan, User } from '../types';
 import { sampleLessons } from '../data/sampleLessons';
-import { parseAndInjectDigitalCompetencies } from '../utils/aiParser';
+import { parseAndInjectDigitalCompetencies, ensureInjectionsInLeftColumn } from '../utils/aiParser';
 import { exportWordDocument } from '../utils/wordExporter';
 import {
   Wand2,
@@ -50,7 +50,7 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
       setTemplate(activePlan.template || 'CV 5512/BGDĐT-GDTrH');
       setLessonTitle(activePlan.title || 'Bài dạy');
       setOriginalHtml(activePlan.originalHtml || '');
-      setIntegratedHtml(activePlan.integratedHtml || '');
+      setIntegratedHtml(ensureInjectionsInLeftColumn(activePlan.integratedHtml || ''));
       setHasFileUploaded(true);
     }
   }, [activePlan]);
@@ -152,11 +152,11 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
 
       let resultHtml = '';
       if (data.success && data.integratedHtml) {
-        resultHtml = data.integratedHtml;
+        resultHtml = ensureInjectionsInLeftColumn(data.integratedHtml);
         onShowToast('Đã tích hợp NLS & AI thành công bằng Gemini 3.6 Flash!');
       } else {
         // Fallback to client smart parser
-        resultHtml = parseAndInjectDigitalCompetencies(originalHtml, subject, grade);
+        resultHtml = ensureInjectionsInLeftColumn(parseAndInjectDigitalCompetencies(originalHtml, subject, grade));
         onShowToast('Đã tích hợp NLS & AI chuẩn Thông tư 02/2025!');
       }
 
@@ -186,7 +186,7 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
       setProgress(100);
 
       // Client smart parser fallback
-      const fallbackHtml = parseAndInjectDigitalCompetencies(originalHtml, subject, grade);
+      const fallbackHtml = ensureInjectionsInLeftColumn(parseAndInjectDigitalCompetencies(originalHtml, subject, grade));
       setIntegratedHtml(fallbackHtml);
       onShowToast('Đã tích hợp NLS & AI chuẩn Thông tư 02/2025!');
 

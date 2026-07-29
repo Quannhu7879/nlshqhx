@@ -73,9 +73,10 @@ Căn cứ pháp lý bắt buộc phải tuân thủ:
 3. Khung thí điểm Giáo dục AI theo **Quyết định 3439/QĐ-BGDĐT (2025)** (4 Mạch Năng lực AI). Các thẻ có dạng: [AI-NLa: Human Centered], [AI-NLb: AI Ethics], [AI-NLc: Prompting], [AI-NLd: AI Design].
 
 YÊU CẦU ĐẦU RA BẮT BUỘC:
+- QUY TẮC BẮT BUỘC VỀ VỊ TRÍ TRONG BẢNG 2 CỘT (CÔNG VĂN 5512): Trong bảng Tiến trình dạy học gồm 2 cột (Cột 1: Hoạt động của GV & HS | Cột 2: Sản phẩm dự kiến / Nội dung), TOÀN BỘ các khối TÍCH HỢP NĂNG LỰC SỐ & AI BẮT BUỘC ĐẶT Ở CỘT BÊN TRÁI (Cột 1: Hoạt động của GV & HS). TUYỆT ĐỐI KHÔNG ĐƯỢC ĐẶT các khối Tích hợp ở cột bên phải (Sản phẩm dự kiến/Nội dung).
 - Ở ĐẦU BÀI DẠY: Tạo khối HTML BẢNG THIẾT LẬP VÀ PHÂN BỔ 6 MIỀN NĂNG LỰC SỐ (TT 02/2025) tổng quan.
 - Trả về mã HTML đẹp mắt, rõ ràng, giàu định dạng (sử dụng các thẻ <div>, <span>, <ul>, <li>, <b>, <i>, <code>) để hiển thị trực tiếp trong giao diện và xuất file Word (.docx) chuẩn font Times New Roman.
-- Đối với MỖI Tiết/Bài và MỖI Hoạt động dạy học (CV 5512), hãy chèn một khối nổi bật (styled block) giải thích cụ thể:
+- Đối với MỖI Tiết/Bài và MỖI Hoạt động dạy học (CV 5512), hãy chèn một khối nổi bật (styled block) giải thích cụ thể vào CỘT BÊN TRÁI:
   + Tên Miền NLS & Mã thẻ chỉ báo NLS/AI áp dụng cho tiết/hoạt động đó.
   + Hành động cụ thể của Giáo viên & Học sinh khi dùng công cụ số (Google Search, GeoGebra, Padlet, Quizizz, Canva, ChatGPT, PhET...).
   + Mẫu câu lệnh AI (Prompt sample) thực tế cho giáo viên/học sinh nếu có.

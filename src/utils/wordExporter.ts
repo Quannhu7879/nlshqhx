@@ -1,3 +1,5 @@
+import { ensureInjectionsInLeftColumn } from './aiParser';
+
 export function exportWordDocument(
   contentHtml: string,
   title: string = 'Kế hoạch bài dạy',
@@ -90,8 +92,8 @@ export function exportWordDocument(
       <hr style="border: 0.5pt solid #000; margin-bottom: 20px;" />
   `;
 
-  // Clean HTML for Word
-  let cleanHtml = contentHtml;
+  // Clean HTML for Word and ensure injections are in the left column
+  let cleanHtml = ensureInjectionsInLeftColumn(contentHtml);
   cleanHtml = cleanHtml.replace(/<i class="fa-.*?"><\/i>/g, ''); // Remove fontawesome icons
   cleanHtml = cleanHtml.replace(/<button.*?>.*?<\/button>/gi, ''); // Remove interactive buttons
 
