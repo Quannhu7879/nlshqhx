@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User } from '../types';
 import { X, Lock, ShieldAlert, LogIn, Check, Eye, EyeOff, Mail, ArrowLeft, KeyRound } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { saveUserAccount, findAccountByEmail } from '../lib/userManagement';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -70,6 +71,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setLoading(true);
 
+    // Verify against managed personal accounts first
+    const registered = findAccountByEmail(email);
+    if (registered) {
+      if (registered.status === 'locked') {
+        setErrorMessage('Tài khoản này đã bị khóa. Vui lòng liên hệ Quản trị viên (Admin).');
+        setLoading(false);
+        return;
+      }
+      if (registered.password && registered.password !== password) {
+        setErrorMessage('Mật khẩu không chính xác. Nếu quên mật khẩu, bấm "Quên mật khẩu?" bên dưới.');
+        setLoading(false);
+        return;
+      }
+    }
+
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -83,8 +99,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           const supabaseUser: User = {
             uid: data.user.id,
             email: data.user.email || email,
-            displayName: data.user.user_metadata?.display_name || displayName || email.split('@')[0],
-            role: 'teacher',
+            displayName: registered?.displayName || data.user.user_metadata?.display_name || displayName || email.split('@')[0],
+            role: registered?.role || 'teacher',
           };
           setLoading(false);
           onLoginSuccess(supabaseUser);
@@ -99,10 +115,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     // Local fallback session login
     const teacherUser: User = {
-      uid: 'user_' + Date.now(),
-      email,
-      displayName: displayName || email.split('@')[0] || 'Giáo viên',
-      role: 'teacher',
+      uid: registered?.id || 'user_' + Date.now(),
+      email: registered?.email || email,
+      displayName: registered?.displayName || displayName || email.split('@')[0] || 'Giáo viên',
+      role: registered?.role || 'teacher',
     };
 
     setLoading(false);
@@ -128,6 +144,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setLoading(true);
 
+    // Create user object and store in userManagement DB
+    const newUserId = 'user_' + Date.now();
+    await saveUserAccount({
+      id: newUserId,
+      email,
+      displayName: displayName || email.split('@')[0] || 'Giáo viên',
+      password,
+      role: 'teacher',
+      createdAt: new Date().toLocaleDateString('vi-VN'),
+      status: 'active',
+      lastLogin: new Date().toLocaleDateString('vi-VN'),
+    });
+
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase.auth.signUp({
@@ -147,7 +176,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           };
           setLoading(false);
           onLoginSuccess(newTeacher);
-          onShowToast('Đã tạo tài khoản thành công!');
+          onShowToast('Đã tạo tài khoản cá nhân thành công!');
           onClose();
           return;
         }
@@ -157,7 +186,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
 
     const newTeacher: User = {
-      uid: 'user_' + Date.now(),
+      uid: newUserId,
       email,
       displayName: displayName || 'Giáo viên',
       role: 'teacher',
@@ -165,7 +194,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setLoading(false);
     onLoginSuccess(newTeacher);
-    onShowToast('Đăng ký tài khoản thành công!');
+    onShowToast('Đăng ký tài khoản cá nhân thành công!');
     onClose();
   };
 
@@ -201,6 +230,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setLoading(true);
 
+    const userAccount = findAccountByEmail(forgotEmail);
+
     if (isSupabaseConfigured()) {
       try {
         const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
@@ -216,7 +247,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setLoading(false);
     setForgotSuccess(true);
-    onShowToast(`Đã gửi hướng dẫn khôi phục mật khẩu về email ${forgotEmail}`);
+    if (userAccount) {
+      onShowToast(`Đã gửi hướng dẫn khôi phục mật khẩu về email ${forgotEmail}`);
+    } else {
+      onShowToast(`Yêu cầu khôi phục mật khẩu đã được gửi đi cho email ${forgotEmail}`);
+    }
   };
 
   return (

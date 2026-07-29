@@ -7,6 +7,17 @@ export interface User {
   role: 'teacher' | 'admin';
 }
 
+export interface RegisteredAccount {
+  id: string;
+  email: string;
+  displayName: string;
+  password?: string;
+  role: 'teacher' | 'admin';
+  createdAt: string;
+  status: 'active' | 'locked';
+  lastLogin?: string;
+}
+
 export interface LessonPlan {
   id: string;
   title: string;
