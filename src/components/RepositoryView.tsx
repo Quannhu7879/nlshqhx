@@ -40,10 +40,10 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
     // Teacher / Personal account: strictly ONLY view their own created/uploaded lesson plans!
     return lessonPlans.filter(item => {
       const isOwnerById = Boolean(item.userId && item.userId === currentUser.uid);
-      const isOwnerByEmail = Boolean(item.authorEmail && item.authorEmail.toLowerCase() === currentUser.email.toLowerCase());
-      // Also match if user created item during current session without id tag yet
-      const isUnclaimedLocal = !item.userId && !item.authorEmail;
-      return isOwnerById || isOwnerByEmail || isUnclaimedLocal;
+      const isOwnerByEmail = Boolean(
+        item.authorEmail && currentUser.email && item.authorEmail.toLowerCase() === currentUser.email.toLowerCase()
+      );
+      return isOwnerById || isOwnerByEmail;
     });
   }, [lessonPlans, currentUser]);
 

@@ -277,6 +277,18 @@ export default function App() {
         onClose={() => setIsAuthOpen(false)}
         onLoginSuccess={user => {
           setCurrentUser(user);
+          // Claim any local plans created during session without owner
+          setLessonPlans(prev => {
+            const updated = prev.map(p => {
+              if (!p.userId && !p.authorEmail && p.id.startsWith('plan_')) {
+                const claimed = { ...p, userId: user.uid, authorEmail: user.email };
+                saveLessonPlanToSupabase(claimed);
+                return claimed;
+              }
+              return p;
+            });
+            return updated;
+          });
           if (user.role === 'admin') {
             setCurrentView('admin');
           }
