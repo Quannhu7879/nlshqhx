@@ -17,32 +17,13 @@ export const LandingView: React.FC<LandingViewProps> = ({ onSwitchView }) => {
             <Sparkles className="w-3.5 h-3.5 mr-2 text-amber-400" />
             Chuẩn Khung Năng Lực Số & AI Bộ GD&ĐT
           </span>
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight uppercase">
             Tích Hợp{' '}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-pink-400 to-amber-300">
-              Năng Lực Số & AI
+              Năng Lực Số
             </span>{' '}
-            Vào Kế Hoạch Bài Dạy Chỉ Trong 30 Giây
+            Trong Dạy Học
           </h1>
-          <p className="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Tải lên file Giáo án gốc (.docx), hệ thống AI tự động bóc tách cấu trúc, đối chiếu Khung NLS chuẩn Thông tư 02/2025/TT-BGDĐT & QĐ 3439/QĐ-BGDĐT, chèn công cụ tương tác số và xuất file Word sẵn sàng giảng dạy.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button
-              onClick={() => onSwitchView('studio')}
-              className="px-8 py-4 text-base font-bold text-slate-900 bg-amber-400 hover:bg-amber-300 rounded-xl shadow-lg transition flex items-center justify-center cursor-pointer"
-            >
-              <Upload className="w-5 h-5 mr-3 text-indigo-700" />
-              Trải Nghiệm AI Studio Ngay
-            </button>
-            <button
-              onClick={() => onSwitchView('library')}
-              className="px-8 py-4 text-base font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition flex items-center justify-center cursor-pointer"
-            >
-              <BookOpen className="w-5 h-5 mr-3 text-slate-400" />
-              Xem Khung Năng Lực Số
-            </button>
-          </div>
         </div>
       </div>
 
