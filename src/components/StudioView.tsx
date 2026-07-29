@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import mammoth from 'mammoth';
 import { LessonPlan, User } from '../types';
 import { sampleLessons } from '../data/sampleLessons';
-import { parseAndInjectDigitalCompetencies, ensureInjectionsInLeftColumn, injectDigitalToolLink } from '../utils/aiParser';
+import { competencyLibraryData } from '../data/competencyData';
+import {
+  parseAndInjectDigitalCompetencies,
+  ensureInjectionsInLeftColumn,
+  injectDigitalToolLink,
+  injectManualCompetencies,
+  ManualCompetencyItem
+} from '../utils/aiParser';
 import { exportWordDocument } from '../utils/wordExporter';
 import {
   Wand2,
@@ -24,7 +31,14 @@ import {
   ClipboardList,
   X,
   Globe,
-  ExternalLink
+  ExternalLink,
+  CheckSquare,
+  ListChecks,
+  Search,
+  Check,
+  PlusCircle,
+  Layers,
+  BookmarkPlus
 } from 'lucide-react';
 
 interface StudioViewProps {
@@ -55,6 +69,97 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
   const [linkUrl, setLinkUrl] = useState('https://padlet.com');
   const [linkDescription, setLinkDescription] = useState('Học sinh truy cập liên kết để đăng sản phẩm thảo luận nhóm.');
   const [linkTargetActivity, setLinkTargetActivity] = useState('hd1');
+
+  // Manual NLS Selection Modal State
+  const [showManualModal, setShowManualModal] = useState(false);
+  const [selectedDomainFilter, setSelectedDomainFilter] = useState<string>('all');
+  const [selectedComponentCodes, setSelectedComponentCodes] = useState<string[]>([]);
+  const [manualTargetActivity, setManualTargetActivity] = useState<string>('hd1');
+  const [manualCustomNote, setManualCustomNote] = useState<string>('');
+  const [manualSearchQuery, setManualSearchQuery] = useState<string>('');
+
+  const toggleComponentCode = (code: string) => {
+    setSelectedComponentCodes(prev =>
+      prev.includes(code) ? prev.filter(c => c !== code) : [...prev, code]
+    );
+  };
+
+  const selectAllInDomain = (domainId: string) => {
+    const domain = competencyLibraryData.find(d => d.id === domainId);
+    if (!domain) return;
+    const codes = domain.components.map(c => c.code);
+    setSelectedComponentCodes(prev => Array.from(new Set([...prev, ...codes])));
+  };
+
+  const deselectAllInDomain = (domainId: string) => {
+    const domain = competencyLibraryData.find(d => d.id === domainId);
+    if (!domain) return;
+    const codes = domain.components.map(c => c.code);
+    setSelectedComponentCodes(prev => prev.filter(c => !codes.includes(c)));
+  };
+
+  const handleApplyManualNLS = () => {
+    if (selectedComponentCodes.length === 0) {
+      onShowToast('Vui lòng tích chọn ít nhất 1 chỉ báo Năng lực số!');
+      return;
+    }
+
+    if (!originalHtml && !integratedHtml) {
+      onShowToast('Vui lòng tải lên giáo án hoặc nạp bài dạy mẫu trước!');
+      return;
+    }
+
+    const items: ManualCompetencyItem[] = [];
+    competencyLibraryData.forEach(domain => {
+      domain.components.forEach(comp => {
+        if (selectedComponentCodes.includes(comp.code)) {
+          items.push({
+            domainCode: domain.code,
+            domainTitle: domain.title,
+            componentCode: comp.code,
+            componentTitle: comp.title,
+            tag: comp.tag,
+            customNote: manualCustomNote.trim() || undefined,
+          });
+        }
+      });
+    });
+
+    let baseHtml = integratedHtml;
+    if (!baseHtml) {
+      baseHtml = parseAndInjectDigitalCompetencies(originalHtml, subject, grade);
+    }
+
+    const updatedHtml = injectManualCompetencies(
+      baseHtml,
+      items,
+      manualTargetActivity,
+      'TÍCH HỢP NĂNG LỰC SỐ THỦ CÔNG'
+    );
+
+    setIntegratedHtml(updatedHtml);
+
+    // Auto-save
+    const newPlan: LessonPlan = {
+      id: activePlan?.id || 'plan_' + Date.now(),
+      title: lessonTitle,
+      subject,
+      grade,
+      framework,
+      template,
+      status: 'Đã tích hợp NLS',
+      originalHtml,
+      integratedHtml: updatedHtml,
+      createdAt: Date.now(),
+      dateString: new Date().toLocaleDateString('vi-VN'),
+      userId: currentUser?.uid,
+      authorEmail: currentUser?.email,
+    };
+    onSaveLesson(newPlan);
+
+    setShowManualModal(false);
+    onShowToast(`Đã gán ${items.length} chỉ báo NLS chọn thủ công vào giáo án (Cột 1)!`);
+  };
 
   const applyPreset = (type: 'padlet' | 'drive' | 'sheets' | 'forms') => {
     setLinkToolType(type);
@@ -351,6 +456,14 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
           </div>
 
           <button
+            onClick={() => setShowManualModal(true)}
+            className="px-3.5 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold rounded-lg border border-purple-200 transition flex items-center shadow-xs"
+          >
+            <CheckSquare className="w-4 h-4 mr-1.5 text-purple-600" />
+            Tích Chọn Miền NLS Thủ Công
+          </button>
+
+          <button
             onClick={() => setShowLinkModal(true)}
             className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200 transition flex items-center shadow-xs"
           >
@@ -489,7 +602,15 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
               <Columns className="w-4 h-4 mr-2 text-indigo-600" />
               Màn hình so sánh trực quan (Đã tích hợp NLS & AI vs Giáo án gốc)
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setShowManualModal(true)}
+                className="px-3.5 py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs rounded-lg transition border border-purple-200 flex items-center shadow-xs"
+              >
+                <CheckSquare className="w-4 h-4 mr-1.5 text-purple-600" />
+                Tích Chọn Miền NLS Thủ Công
+              </button>
+
               <button
                 onClick={() => setShowLinkModal(true)}
                 className="px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-lg transition border border-indigo-200 flex items-center shadow-xs"
@@ -729,6 +850,249 @@ export const StudioView: React.FC<StudioViewProps> = ({ currentUser, activePlan,
                   <Link2 className="w-4 h-4 mr-1.5" />
                   Chèn Link Vào Giáo Án (Cột 1)
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manual NLS Competency Picker Modal */}
+      {showManualModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl overflow-hidden my-auto flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 px-6 py-4 text-white flex justify-between items-center shrink-0">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/30 flex items-center justify-center border border-purple-400/30 shrink-0">
+                  <CheckSquare className="w-5 h-5 text-purple-300" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm sm:text-base flex items-center gap-2">
+                    Tích Chọn Miền Năng Lực Số & AI Thủ Công
+                  </h3>
+                  <p className="text-[11px] text-purple-200 mt-0.5">
+                    Chọn các chỉ báo thuộc 6 Miền TT 02/2025 & QĐ 3439 để gán vào vị trí cụ thể trong giáo án gốc
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowManualModal(false)}
+                className="text-slate-300 hover:text-white p-1.5 bg-white/10 hover:bg-white/20 rounded-xl transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Filter & Search Toolbar */}
+            <div className="p-4 bg-slate-50 border-b border-slate-200 space-y-3 shrink-0">
+              {/* Domain Tabs */}
+              <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setSelectedDomainFilter('all')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition shrink-0 ${
+                    selectedDomainFilter === 'all'
+                      ? 'bg-purple-600 text-white shadow-xs'
+                      : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  Tất cả 6 Miền
+                </button>
+                {competencyLibraryData.map(d => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => setSelectedDomainFilter(d.id)}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition shrink-0 flex items-center gap-1.5 ${
+                      selectedDomainFilter === d.id
+                        ? 'bg-purple-600 text-white shadow-xs font-bold'
+                        : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>{d.code.split('-')[0]}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm theo mã (1.1, 2.4, 6.3), từ khóa (tìm kiếm, AI, bản quyền, Padlet)..."
+                  value={manualSearchQuery}
+                  onChange={e => setManualSearchQuery(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:ring-2 focus:ring-purple-500 outline-none shadow-xs"
+                />
+                {manualSearchQuery && (
+                  <button
+                    onClick={() => setManualSearchQuery('')}
+                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Component Selection List */}
+            <div className="p-4 overflow-y-auto custom-scrollbar flex-grow space-y-4">
+              {competencyLibraryData
+                .filter(d => selectedDomainFilter === 'all' || d.id === selectedDomainFilter)
+                .map(domain => {
+                  const filteredComponents = domain.components.filter(c => {
+                    if (!manualSearchQuery.trim()) return true;
+                    const q = manualSearchQuery.toLowerCase();
+                    return (
+                      c.code.toLowerCase().includes(q) ||
+                      c.title.toLowerCase().includes(q) ||
+                      c.tag.toLowerCase().includes(q) ||
+                      domain.title.toLowerCase().includes(q)
+                    );
+                  });
+
+                  if (filteredComponents.length === 0) return null;
+
+                  const allSelectedInDomain = domain.components.every(c =>
+                    selectedComponentCodes.includes(c.code)
+                  );
+
+                  return (
+                    <div
+                      key={domain.id}
+                      className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs space-y-2.5"
+                    >
+                      {/* Domain Header */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center font-bold text-xs">
+                            <i className={`fa-solid ${domain.icon}`}></i>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider block">
+                              {domain.code}
+                            </span>
+                            <h4 className="font-bold text-xs text-slate-900">{domain.title}</h4>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              allSelectedInDomain
+                                ? deselectAllInDomain(domain.id)
+                                : selectAllInDomain(domain.id)
+                            }
+                            className="text-[11px] font-semibold text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-2.5 py-1 rounded-md transition"
+                          >
+                            {allSelectedInDomain ? 'Bỏ chọn tất cả' : 'Chọn tất cả miền này'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Sub-competencies Checkboxes Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {filteredComponents.map(comp => {
+                          const isChecked = selectedComponentCodes.includes(comp.code);
+                          return (
+                            <label
+                              key={comp.code}
+                              onClick={() => toggleComponentCode(comp.code)}
+                              className={`p-2.5 rounded-xl border text-left transition flex items-start gap-2.5 cursor-pointer ${
+                                isChecked
+                                  ? 'border-purple-500 bg-purple-50/80 shadow-xs'
+                                  : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/80'
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {}}
+                                className="mt-0.5 w-4 h-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500 shrink-0 cursor-pointer"
+                              />
+                              <div className="flex-grow min-w-0">
+                                <div className="flex items-center justify-between gap-1 mb-0.5">
+                                  <span className="font-bold text-xs text-slate-900 font-mono">
+                                    {comp.code}
+                                  </span>
+                                  <span className="text-[10px] bg-indigo-50 text-indigo-700 font-mono font-bold px-1.5 py-0.5 rounded border border-indigo-100 shrink-0">
+                                    {comp.tag}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-slate-700 leading-snug line-clamp-2">
+                                  {comp.title}
+                                </p>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+
+            {/* Placement & Custom Instructions Controls */}
+            <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-3 shrink-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center">
+                    <BookmarkPlus className="w-3.5 h-3.5 text-purple-600 mr-1.5" />
+                    Vị Trí Gán Trong Giáo Án Gốc (Cột 1)
+                  </label>
+                  <select
+                    value={manualTargetActivity}
+                    onChange={e => setManualTargetActivity(e.target.value)}
+                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-purple-500 outline-none shadow-xs"
+                  >
+                    <option value="muc_tieu">I. Bổ sung Mục tiêu Năng lực số & AI</option>
+                    <option value="hd1">II. Hoạt động 1: Mở đầu / Khởi động</option>
+                    <option value="hd2">II. Hoạt động 2: Hình thành kiến thức mới</option>
+                    <option value="hd3">II. Hoạt động 3: Luyện tập / Tổng kết</option>
+                    <option value="hd4">II. Hoạt động 4: Vận dụng / Mở rộng</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500 mr-1.5" />
+                    Hướng Dẫn / Nhiệm Vụ GV Cụ Thể (Tùy chọn)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="VD: GV hướng dẫn HS dùng ChatGPT tra cứu & nộp Padlet..."
+                    value={manualCustomNote}
+                    onChange={e => setManualCustomNote(e.target.value)}
+                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:ring-2 focus:ring-purple-500 outline-none shadow-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-1">
+                <div className="text-xs font-bold text-purple-700 bg-purple-100/80 px-3 py-1.5 rounded-lg border border-purple-200 flex items-center shrink-0">
+                  <CheckSquare className="w-4 h-4 mr-1.5 text-purple-600" />
+                  Đã chọn: <span className="text-purple-900 font-mono text-sm ml-1 mr-1">{selectedComponentCodes.length}</span> chỉ báo NLS
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowManualModal(false)}
+                    className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition"
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApplyManualNLS}
+                    className="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition flex items-center"
+                  >
+                    <PlusCircle className="w-4 h-4 mr-1.5" />
+                    Gán NLS Đã Chọn Vào Giáo Án (Cột 1)
+                  </button>
+                </div>
               </div>
             </div>
           </div>

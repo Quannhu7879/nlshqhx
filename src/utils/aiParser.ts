@@ -418,4 +418,108 @@ export function injectDigitalToolLink(
   }
 }
 
+export interface ManualCompetencyItem {
+  domainCode: string;
+  domainTitle: string;
+  componentCode: string;
+  componentTitle: string;
+  tag: string;
+  customNote?: string;
+}
+
+/**
+ * Inserts manually selected NLS competency domain/components into specific locations
+ * in the original lesson plan (Column 1 - Hoạt động GV & HS).
+ */
+export function injectManualCompetencies(
+  htmlInput: string,
+  items: ManualCompetencyItem[],
+  targetActivity: string = 'hd1',
+  customHeaderTitle: string = 'TÍCH HỢP NĂNG LỰC SỐ THỦ CÔNG'
+): string {
+  if (!htmlInput || items.length === 0) return htmlInput;
+
+  const activityLabels: Record<string, string> = {
+    muc_tieu: 'MỤC TIÊU BÀI HỌC',
+    hd1: 'HOẠT ĐỘNG 1: MỞ ĐẦU / KHỞI ĐỘNG',
+    hd2: 'HOẠT ĐỘNG 2: HÌNH THÀNH KIẾN THỨC MỚI',
+    hd3: 'HOẠT ĐỘNG 3: LUYỆN TẬP / TỔNG KẾT',
+    hd4: 'HOẠT ĐỘNG 4: VẬN DỤNG / MỞ RỘNG',
+  };
+
+  const targetLabel = activityLabels[targetActivity] || 'TIẾN TRÌNH DẠY HỌC';
+
+  const itemsHtml = items.map(item => `
+    <li style="margin-bottom: 4px; line-height: 1.35;">
+      <span class="border border-indigo-300 text-indigo-900 font-bold px-1.5 py-0.5 rounded font-mono mr-1 text-[10px] bg-transparent">[${item.tag.replace(/^\[|\]$/g, '')}]</span>
+      <b>${item.componentCode}. ${item.componentTitle}:</b>
+      <span class="text-slate-700"> (${item.domainTitle})</span>
+      ${item.customNote ? `<div class="text-[11px] text-indigo-900 bg-indigo-50/70 p-1.5 rounded mt-0.5 border border-indigo-100 font-medium">${item.customNote}</div>` : ''}
+    </li>
+  `).join('');
+
+  const injectionBoxHtml = `
+    <div class="border border-indigo-300 border-l-4 border-l-indigo-600 bg-transparent p-2.5 rounded-lg my-2 shadow-xs nls-injection relative text-xs w-full max-w-full box-border" style="width:100% !important; max-width:100% !important; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:break-word !important; background-color: transparent !important;">
+      <div class="font-bold text-indigo-900 text-[11px] uppercase mb-1 leading-snug break-words" style="word-break:break-word; overflow-wrap:break-word;">
+        <i class="fa-solid fa-square-check text-indigo-600 mr-1"></i> ${customHeaderTitle} [${targetLabel}]
+      </div>
+      <ul class="list-none pl-1 text-slate-700 space-y-1.5 leading-relaxed m-0" style="word-break:break-word; overflow-wrap:break-word;">
+        ${itemsHtml}
+      </ul>
+    </div>
+  `;
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlInput, 'text/html');
+
+    const activityKeywords: Record<string, string[]> = {
+      hd1: ['khởi động', 'mở đầu', 'hoạt động 1'],
+      hd2: ['hình thành kiến thức', 'nội dung mới', 'hoạt động 2'],
+      hd3: ['luyện tập', 'tổng kết', 'hoạt động 3'],
+      hd4: ['vận dụng', 'mở rộng', 'hoạt động 4'],
+      muc_tieu: ['mục tiêu', 'yêu cầu cần đạt', 'chuẩn đầu ra']
+    };
+
+    const targetKw = activityKeywords[targetActivity] || ['khởi động', 'hoạt động'];
+    const allNodes = Array.from(doc.querySelectorAll('p, div, h1, h2, h3, h4, td'));
+    let inserted = false;
+
+    for (const node of allNodes) {
+      const text = (node.textContent || '').toLowerCase();
+      if (targetKw.some(kw => text.includes(kw)) && text.length < 200) {
+        const parentTd = node.closest('td');
+        if (parentTd) {
+          const row = parentTd.closest('tr');
+          if (row && row.cells.length > 0) {
+            const firstTd = row.cells[0]; // Cột 1 (Left Column)
+            const div = doc.createElement('div');
+            div.innerHTML = injectionBoxHtml;
+            firstTd.appendChild(div);
+            inserted = true;
+            break;
+          }
+        } else {
+          const div = doc.createElement('div');
+          div.innerHTML = injectionBoxHtml;
+          node.parentNode?.insertBefore(div, node.nextSibling);
+          inserted = true;
+          break;
+        }
+      }
+    }
+
+    if (!inserted) {
+      const div = doc.createElement('div');
+      div.innerHTML = injectionBoxHtml;
+      doc.body.appendChild(div);
+    }
+
+    return ensureInjectionsInLeftColumn(doc.body.innerHTML);
+  } catch (err) {
+    console.error('Error inserting manual NLS competencies:', err);
+    return htmlInput + injectionBoxHtml;
+  }
+}
+
 
